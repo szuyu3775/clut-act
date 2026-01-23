@@ -11,26 +11,16 @@
     <style>
         body { background-color: #f0f2f5; font-family: 'Noto Sans TC', sans-serif; }
         
-        /* 登入頁樣式 */
+        /* Login */
         .login-container { max-width: 450px; margin: 80px auto; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .login-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px; border-radius: 15px 15px 0 0; margin: -30px -30px 30px -30px; text-align: center; }
 
-        /* 應用程式樣式 */
+        /* Main App */
         #mainApp { display: none; }
         .main-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        
-        .header-section { 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
-            color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; 
-        }
-
+        .header-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
-        /* Loading */
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        
-        /* Tabs & Tables */
         .nav-pills .nav-link { color: #555; background: #fff; margin-right: 10px; border: 1px solid #ddd; font-weight: bold; padding: 8px 20px; transition: all 0.3s; }
         .nav-pills .nav-link.active { background-color: #2a5298; color: white; border-color: #2a5298; box-shadow: 0 4px 6px rgba(42, 82, 152, 0.3); }
         .table-hover tbody tr:hover { background-color: #f1f8ff; }
@@ -42,11 +32,13 @@
         .report-table td, .disability-table td { vertical-align: middle; text-align: center; font-size: 0.85em; }
         .report-header-group { background-color: #e9ecef !important; }
         .col-text { min-width: 120px; text-align: left !important; white-space: normal; }
-        
-        /* Sticky Header for Tables */
         .disability-table th { position: sticky; top: 0; z-index: 2; background-color: #e9ecef; border: 1px solid #dee2e6; }
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 60px; font-size: 0.8em; }
+
+        /* Error Highlighting */
+        .cell-error { background-color: #f8d7da !important; color: #dc3545; border: 2px solid #dc3545 !important; font-weight: bold; }
+        .cell-error::after { content: " ⚠️"; }
     </style>
 </head>
 <body>
@@ -62,7 +54,6 @@
         <h3 class="fw-bold mb-0"><i class="fas fa-universal-access me-2"></i>致理科大資源教室</h3>
         <div class="small opacity-75">整合管理系統</div>
     </div>
-    
     <form onsubmit="performLogin(event)">
         <div class="d-flex justify-content-end mb-2">
             <button class="btn btn-sm btn-link text-decoration-none text-muted" type="button" data-bs-toggle="collapse" data-bs-target="#loginConfigBox"><i class="fas fa-cog"></i> 連線設定</button>
@@ -79,7 +70,7 @@
         </div>
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
-    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v3.5 (Final Verified)</div>
+    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v3.7 (Dynamic Validation)</div>
 </div>
 
 <!-- 2. 主程式 -->
@@ -118,8 +109,30 @@
             <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4"><div class="card-body"><h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-search me-2"></i>資料庫查詢 (本機快取)</h5><div class="input-group"><input type="text" id="userSearchInput" class="form-control" placeholder="姓名 或 學號..." onkeydown="if(event.key==='Enter') searchUserLocal()"><button class="btn btn-primary fw-bold" onclick="searchUserLocal()">查詢</button></div><div id="searchResultArea" style="display:none;" class="mt-3"><div class="table-responsive"><table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle"><thead class="table-light"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead><tbody id="searchResultBody"></tbody></table></div></div></div></div>
-                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID | 姓名 | 身分 | 性別 | 科系/單位 | 特教類別</strong><br><span class="text-danger">* 系統會自動檢查「身分」與「性別」是否填寫，若有缺漏將以紅色標示。</span></div><textarea id="importInput" class="form-control font-monospace" rows="4" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2"><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
-                <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3"><div class="card-header bg-primary text-white d-flex justify-content-between"><span>預覽</span><span class="badge bg-white text-primary" id="previewCount">0</span></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 200px;"><table class="table table-sm table-striped mb-0 text-center small"><thead><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead><tbody id="previewTableBody"></tbody></table></div></div><div class="card-footer"><button onclick="submitImport()" class="btn btn-success w-100 fw-bold">確認寫入</button></div></div>
+                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別 (系統檢核)</strong><br><span class="text-danger">* 若資料不符（例如障別名稱未在設定檔中），將以紅色標示並禁止匯入。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
+                
+                <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between">
+                        <span>預覽與檢核</span>
+                        <span class="badge bg-white text-primary" id="previewCount">0</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="alert alert-danger m-2" id="importErrorMsg" style="display:none;">
+                            <strong><i class="fas fa-exclamation-triangle"></i> 發現資料錯誤！</strong> 請修改 Excel 資料後重新貼上，或檢查紅色標記欄位。<br>
+                            <small>規則：ID限英數、姓名2-3字、性別限男女、障別需符合系統設定。</small>
+                        </div>
+                        <div class="table-responsive" style="max-height: 400px;">
+                            <table class="table table-sm table-striped mb-0 text-center small">
+                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead>
+                                <tbody id="previewTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <button onclick="cancelImport()" class="btn btn-secondary">取消 / 重新編輯</button>
+                        <button onclick="submitImport()" id="btnSubmitImport" class="btn btn-success fw-bold">確認寫入資料庫</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab 2: Activity Manager -->
@@ -153,7 +166,7 @@
                 <div class="row g-3">
                     <div class="col-md-6"><label class="form-label">開始日期</label><input type="date" id="editDate" class="form-control"></div>
                     <div class="col-md-6"><label class="form-label">結束日期</label><input type="date" id="editEndDate" class="form-control"></div>
-                    <div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"><datalist id="modalCategoryOptions"></datalist></div>
+                    <div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"><datalist id="modalCategoryOptions"><option value="ISP"><option value="ITP"><option value="課業"><option value="人際"><option value="職涯"></datalist></div>
                     <div class="col-12"><label class="form-label">名稱</label><input type="text" id="editName" class="form-control"></div>
                     <div class="col-md-6"><label class="form-label">方式</label><input type="text" id="editMethod" class="form-control" placeholder="例：工作坊"></div>
                     <div class="col-md-6"><label class="form-label">成效/備註</label><input type="text" id="editOutcome" class="form-control" placeholder="例：滿意度4.5"></div>
@@ -176,6 +189,10 @@
     let CACHED_USER_MAP = {};   
     let CONFIG_CATEGORIES = []; 
     let CONFIG_DISABILITIES = []; 
+
+    // [MODIFIED] Validation list is now populated from CONFIG_DISABILITIES but starts empty
+    let VALID_DISABILITIES = []; 
+    const VALID_GENDERS = ["男", "女"];
 
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
@@ -215,6 +232,8 @@
                 CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
                 CONFIG_CATEGORIES = res.config.categories;
                 CONFIG_DISABILITIES = res.config.disabilities;
+                // [NEW] Update Validation List from Config
+                VALID_DISABILITIES = CONFIG_DISABILITIES; 
                 populateDropdowns();
                 showMainApp();
             } else { alert("載入系統資料失敗，請重試"); }
@@ -280,8 +299,92 @@
     function changeYearMode(mode){currentYearMode=mode;delete document.getElementById('yearFilter').dataset.userSelected;updateYearFilter(cachedActivities);filterActivities();}
     function searchUser() { searchUserLocal(); }
     
-    function previewImport(){const raw=document.getElementById('importInput').value;if(!raw.trim())return alert("無資料");const lines=raw.split("\n");usersToImport=[];lines.forEach(l=>{if(!l.trim())return;const c=l.split("\t").map(s=>s.trim());if(c.length>=2&&(c[0]||c[1])){let r=c[2]||"";if(r==="助理")r="工讀生";usersToImport.push({id:c[0],name:c[1]||"未命名",role:r,gender:c[3]||"",dept:c[4]||"",disability:c[5]||""});}});if(usersToImport.length===0)return alert("解析失敗");const tb=document.getElementById('previewTableBody');tb.innerHTML="";usersToImport.forEach(u=>{const roleClass=!u.role?'bg-danger-subtle':''; const genderClass=!u.gender?'bg-danger-subtle':''; tb.innerHTML+=`<tr><td>${u.id}</td><td>${u.name}</td><td class="${roleClass}"><span class="badge ${getRoleClass(u.role)} db-badge">${u.role||"缺"}</span></td><td class="${genderClass}">${u.gender||"缺"}</td><td>${u.dept}</td><td>${u.disability}</td></tr>`;});document.getElementById('previewCount').innerText=usersToImport.length;document.getElementById('importPreviewArea').style.display='block';}
-    function submitImport(){if(usersToImport.length===0)return;callApi({action:"importUsers",users:usersToImport},()=>{alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; loadSystemData(); });}
+    // [STRICT VALIDATION PREVIEW using Dynamic Config]
+    function previewImport(){
+        const raw=document.getElementById('importInput').value;
+        if(!raw.trim())return alert("無資料");
+        const lines=raw.split("\n");
+        usersToImport=[];
+        let hasError = false;
+        
+        lines.forEach(l=>{
+            if(!l.trim())return;
+            const c=l.split("\t").map(s=>s.trim());
+            if(c.length>=2 && (c[0]||c[1])){
+                let u = {
+                    id: c[0] || "",
+                    name: c[1] || "",
+                    role: c[2] || "",
+                    gender: c[3] || "",
+                    dept: c[4] || "",
+                    disability: c[5] || ""
+                };
+                
+                if(u.role==="助理") u.role="工讀生";
+                
+                u.errors = {};
+                if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
+                if(!u.name || u.name.length < 2 || u.name.length > 3) { u.errors.name = true; hasError = true; }
+                if(!VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }
+                
+                // Use Dynamic VALID_DISABILITIES (from backend config)
+                if(u.role === "特教生") {
+                    if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
+                } else {
+                    if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
+                }
+
+                usersToImport.push(u);
+            }
+        });
+
+        if(usersToImport.length===0) return alert("解析失敗");
+        
+        const tb=document.getElementById('previewTableBody');
+        tb.innerHTML="";
+        const btnSubmit = document.getElementById('btnSubmitImport');
+        const msgError = document.getElementById('importErrorMsg');
+        
+        if (hasError) {
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "資料有誤，無法匯入";
+            btnSubmit.classList.replace('btn-success', 'btn-secondary');
+            msgError.style.display = 'block';
+        } else {
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = "確認寫入資料庫";
+            btnSubmit.classList.replace('btn-secondary', 'btn-success');
+            msgError.style.display = 'none';
+        }
+
+        usersToImport.forEach(u=>{
+            const idClass = u.errors.id ? 'cell-error' : '';
+            const nameClass = u.errors.name ? 'cell-error' : '';
+            const genderClass = u.errors.gender ? 'cell-error' : '';
+            const disClass = u.errors.disability ? 'cell-error' : '';
+            
+            tb.innerHTML+=`<tr>
+                <td class="${idClass}">${u.id}</td>
+                <td class="${nameClass}">${u.name}</td>
+                <td><span class="badge ${getRoleClass(u.role)} db-badge">${u.role}</span></td>
+                <td class="${genderClass}">${u.gender}</td>
+                <td>${u.dept}</td>
+                <td class="${disClass}">${u.disability}</td>
+            </tr>`;
+        });
+        
+        document.getElementById('previewCount').innerText=usersToImport.length;
+        document.getElementById('importPreviewArea').style.display='block';
+        document.getElementById('importCollapse').classList.remove('show');
+    }
+    
+    function cancelImport() {
+        document.getElementById('importPreviewArea').style.display='none';
+        document.getElementById('importCollapse').classList.add('show');
+        usersToImport = [];
+    }
+
+    function submitImport(){if(usersToImport.length===0)return;callApi({action:"importUsers",users:usersToImport},()=>{alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
     
     function loadActivityList(f=false){
         const tb=document.getElementById('activityListBody');
@@ -352,7 +455,6 @@
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
-        
         if (type === 'basic') {
             basicTbl.style.display = 'table';
             disTbl.style.display = 'none';
@@ -425,7 +527,7 @@
             const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter));
             if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; }
             
-            // Use Dynamic Disabilities from Config or Fallback
+            // Use Dynamic Disabilities from Config
             const disabilities = (CONFIG_DISABILITIES && CONFIG_DISABILITIES.length > 0) ? CONFIG_DISABILITIES : ["自閉症", "學習障礙", "情緒行為障礙", "腦性麻痺", "肢體障礙", "聽覺障礙", "視覺障礙", "智能障礙", "身體病弱", "多重障礙", "其他障礙"];
             
             let hRow = `<tr><th rowspan="2">日期</th><th rowspan="2">活動名稱</th><th rowspan="2">類別</th><th rowspan="2" class="disability-total">參與總人次</th>`;
