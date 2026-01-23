@@ -32,6 +32,8 @@
         .report-table td, .disability-table td { vertical-align: middle; text-align: center; font-size: 0.85em; }
         .report-header-group { background-color: #e9ecef !important; }
         .col-text { min-width: 120px; text-align: left !important; white-space: normal; }
+        
+        /* 障別統計表 */
         .disability-table th { position: sticky; top: 0; z-index: 2; background-color: #e9ecef; border: 1px solid #dee2e6; }
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 60px; font-size: 0.8em; }
@@ -61,7 +63,8 @@
         <div class="collapse mb-3" id="loginConfigBox">
             <div class="card card-body bg-light border-0 py-2">
                 <label class="form-label fw-bold text-dark small mb-1">GAS 後端網址</label>
-                <input type="text" id="loginApiUrl" class="form-control form-control-sm" required>
+                <input type="text" id="loginApiUrl" class="form-control form-control-sm" required placeholder="https://script.google.com/macros/s/...">
+                <div class="form-text small">首次使用請在此貼上您的 GAS 網址，系統將自動記憶。</div>
             </div>
         </div>
         <div class="mb-4">
@@ -70,7 +73,7 @@
         </div>
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
-    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v3.7 (Dynamic Validation)</div>
+    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v4.0 (Secure & Clean)</div>
 </div>
 
 <!-- 2. 主程式 -->
@@ -179,6 +182,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // [SECURE] No Default URL, No Mock Data
     let API_URL = "";
     let usersToImport=[], validActivityIds=[], editModal, cachedActivities=[], currentYearMode='calendar';
     let currentReportType = 'basic', currentReportFilterMode = 'calendar'; 
@@ -189,8 +193,6 @@
     let CACHED_USER_MAP = {};   
     let CONFIG_CATEGORIES = []; 
     let CONFIG_DISABILITIES = []; 
-
-    // [MODIFIED] Validation list is now populated from CONFIG_DISABILITIES but starts empty
     let VALID_DISABILITIES = []; 
     const VALID_GENDERS = ["男", "女"];
 
@@ -232,7 +234,6 @@
                 CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
                 CONFIG_CATEGORIES = res.config.categories;
                 CONFIG_DISABILITIES = res.config.disabilities;
-                // [NEW] Update Validation List from Config
                 VALID_DISABILITIES = CONFIG_DISABILITIES; 
                 populateDropdowns();
                 showMainApp();
@@ -455,6 +456,7 @@
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
+        
         if (type === 'basic') {
             basicTbl.style.display = 'table';
             disTbl.style.display = 'none';
@@ -537,7 +539,6 @@
 
             const bHtml = activities.map(act => {
                 const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} };
-                
                 let rowHtml = `<tr><td class="text-nowrap">${act.date}</td><td class="text-start fw-bold">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="disability-total">${stat.total}</td>`;
                 disabilities.forEach(d => {
                     const count = stat.details[d] || 0;
