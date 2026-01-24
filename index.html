@@ -73,8 +73,8 @@
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v3.10 (Quick Toggle)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-24 20:30</div>
+        <div>版本：v3.13 (Dual Gender Buttons)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-24 21:10</div>
     </div>
 </div>
 
@@ -118,12 +118,12 @@
                 
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
-                        <span>預覽與檢核 (點擊性別色塊可快速切換)</span>
+                        <span>預覽與檢核 (可直接點選修正)</span>
                         <span class="badge bg-white text-primary" id="previewCount">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="alert alert-danger m-2" id="importErrorMsg" style="display:none;">
-                            <strong><i class="fas fa-exclamation-triangle"></i> 資料有誤！</strong> 請直接在下方表格中修正紅色欄位（點擊性別切換），直到所有錯誤消失。
+                            <strong><i class="fas fa-exclamation-triangle"></i> 資料有誤！</strong> 請點選下方紅色的「性別」按鈕進行補填，或修正其他欄位。
                         </div>
                         <div class="table-responsive" style="max-height: 400px;">
                             <table class="table table-sm table-striped mb-0 text-center small align-middle">
@@ -300,7 +300,7 @@
     function changeYearMode(mode){currentYearMode=mode;delete document.getElementById('yearFilter').dataset.userSelected;updateYearFilter(cachedActivities);filterActivities();}
     function searchUser() { searchUserLocal(); }
     
-    // [IMPROVED] Preview Import with Toggle Badge for Gender
+    // [IMPROVED] Preview Import with Button Toggle for Gender
     function previewImport(){
         const raw=document.getElementById('importInput').value;
         if(!raw.trim())return alert("無資料");
@@ -326,7 +326,7 @@
                 if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
                 if(!u.name || u.name.length < 2 || u.name.length > 3) { u.errors.name = true; hasError = true; }
                 
-                // Allow empty gender initially (to be fixed in UI), but mark as error if present and invalid
+                // Gender check (allow empty initially, but mark error if invalid)
                 if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }
                 else if (!u.gender) { u.errors.gender = true; hasError = true; }
                 
@@ -334,7 +334,6 @@
                 if(u.role === "特教生") {
                     if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
                 } else {
-                    // Non-sped: can be empty, but if filled, must be valid
                     if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
                 }
 
@@ -357,28 +356,19 @@
             const idCls = u.errors.id ? 'cell-error' : '';
             const nameCls = u.errors.name ? 'cell-error' : '';
             const disCls = u.errors.disability ? 'cell-error' : '';
-            const genderCls = u.errors.gender ? 'cell-error' : '';
+            // For gender buttons, apply border to container if error
+            const genderErr = u.errors.gender ? 'border border-danger rounded p-1' : 'p-1';
             
             if(u.errors.id || u.errors.name || u.errors.disability || u.errors.gender) stillHasError = true;
 
-            // Make Gender a Toggle Badge
-            let gVal = u.gender;
-            let gBadgeClass = "bg-secondary";
-            let gText = "未填";
+            // Toggle Buttons for Gender
+            const isMale = u.gender === '男';
+            const isFemale = u.gender === '女';
             
-            if (gVal === "男") {
-                gBadgeClass = "bg-primary";
-                gText = "男";
-            } else if (gVal === "女") {
-                gBadgeClass = "bg-danger";
-                gText = "女";
-            } else {
-                gBadgeClass = u.errors.gender ? "bg-danger-subtle text-danger border border-danger" : "bg-secondary";
-                gText = gVal || "點擊設定";
-            }
-            
-            let genderHtml = `<div onclick="toggleImportGender(${idx})" class="badge ${gBadgeClass} p-2 w-100" style="cursor:pointer; user-select: none;">
-                ${gText} <i class="fas fa-exchange-alt ms-1 small opacity-50"></i>
+            let genderHtml = `
+            <div class="d-flex justify-content-center gap-1 ${genderErr}">
+                <button type="button" class="btn btn-sm ${isMale ? 'btn-primary' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '男')">男</button>
+                <button type="button" class="btn btn-sm ${isFemale ? 'btn-danger' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '女')">女</button>
             </div>`;
 
             tb.innerHTML += `<tr>
@@ -395,21 +385,15 @@
         updateSubmitButton(stillHasError);
     }
 
-    function toggleImportGender(idx) {
-        // Toggle Logic: Empty -> 男 -> 女 -> 男
-        let current = usersToImport[idx].gender;
-        let next = "男";
-        if (current === "男") next = "女";
-        else if (current === "女") next = "男";
-        
-        usersToImport[idx].gender = next;
-        
-        // Re-validate gender
-        if (VALID_GENDERS.includes(next)) {
+    // [NEW] Direct Set Gender
+    function setImportGender(idx, val) {
+        usersToImport[idx].gender = val;
+        // Re-validate
+        if (VALID_GENDERS.includes(val)) {
             usersToImport[idx].errors.gender = false;
+        } else {
+            usersToImport[idx].errors.gender = true;
         }
-        
-        // Re-render
         renderImportTable(); 
     }
 
