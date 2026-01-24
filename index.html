@@ -72,10 +72,7 @@
         </div>
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
-    <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v3.13 (Dual Gender Buttons)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-24 21:10</div>
-    </div>
+    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v4.4 (Logic Revised)</div>
 </div>
 
 <!-- 2. 主程式 -->
@@ -114,7 +111,7 @@
             <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4"><div class="card-body"><h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-search me-2"></i>資料庫查詢 (本機快取)</h5><div class="input-group"><input type="text" id="userSearchInput" class="form-control" placeholder="姓名 或 學號..." onkeydown="if(event.key==='Enter') searchUserLocal()"><button class="btn btn-primary fw-bold" onclick="searchUserLocal()">查詢</button></div><div id="searchResultArea" style="display:none;" class="mt-3"><div class="table-responsive"><table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle"><thead class="table-light"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead><tbody id="searchResultBody"></tbody></table></div></div></div></div>
-                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別 (系統檢核)</strong><br><span class="text-danger">* 若資料不符，將以紅色標示，請在預覽列表中直接修改。</span><br><span class="text-primary fw-bold">* 提示：若「特教類別」有填寫，身分將自動鎖定為「特教生」。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
+                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別</strong><br><span class="text-danger">* 若資料不符，將以紅色標示，請在預覽列表中直接修改。</span><br><span class="text-primary fw-bold">* 提示：若「特教類別」有填寫，身分將自動鎖定為「特教生」。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
                 
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
@@ -193,8 +190,10 @@
     let CACHED_USER_MAP = {};   
     let CONFIG_CATEGORIES = []; 
     let CONFIG_DISABILITIES = []; 
-    let VALID_DISABILITIES = []; 
+    // [SPECIFIC] User-defined strict list
+    const VALID_DISABILITIES = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
     const VALID_GENDERS = ["男", "女"];
+    const VALID_ROLES = ["特教生", "家長", "校外人士", "教師", "職員", "工讀生"];
 
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
@@ -234,7 +233,6 @@
                 CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
                 CONFIG_CATEGORIES = res.config.categories;
                 CONFIG_DISABILITIES = res.config.disabilities;
-                VALID_DISABILITIES = CONFIG_DISABILITIES; 
                 populateDropdowns();
                 showMainApp();
             } else { alert("載入系統資料失敗，請重試"); }
@@ -314,9 +312,10 @@
             if(c.length>=2 && (c[0]||c[1])){
                 let u = { id: c[0] || "", name: c[1] || "", role: c[2] || "", gender: c[3] || "", dept: c[4] || "", disability: c[5] || "" };
                 
-                // Auto-fix
+                // 1. Auto-fix Role
                 if(u.role==="助理") u.role="工讀生";
-                // New: Force role to "特教生" if disability is present
+                if(u.role==="輔導人員") u.role="職員";
+                // 2. [NEW LOGIC] If disability exists, Role MUST be "特教生"
                 if(u.disability && u.disability.trim() !== "") {
                     u.role = "特教生";
                 }
@@ -486,7 +485,6 @@
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
-        
         if (type === 'basic') {
             basicTbl.style.display = 'table';
             disTbl.style.display = 'none';
