@@ -70,11 +70,9 @@
         </div>
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
-    
-    <!-- 更新時間顯示 -->
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v4.8 (Timestamp Updated)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-24 22:10</div>
+        <div>版本：v5.1 (Excel-like Grid)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-24 22:30</div>
     </div>
 </div>
 
@@ -114,16 +112,7 @@
             <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4"><div class="card-body"><h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-search me-2"></i>資料庫查詢 (本機快取)</h5><div class="input-group"><input type="text" id="userSearchInput" class="form-control" placeholder="姓名 或 學號..." onkeydown="if(event.key==='Enter') searchUserLocal()"><button class="btn btn-primary fw-bold" onclick="searchUserLocal()">查詢</button></div><div id="searchResultArea" style="display:none;" class="mt-3"><div class="table-responsive"><table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle"><thead class="table-light"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead><tbody id="searchResultBody"></tbody></table></div></div></div></div>
-                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body">
-                    <div class="alert alert-light border small">
-                        <strong><i class="fas fa-magic me-1"></i> 智慧辨識匯入</strong><br>
-                        請貼上 Excel 資料，系統會自動依內容偵測欄位順序。<br>
-                        建議順序：<strong>ID | 姓名 | 特教類別 | 性別 | 科系/單位 | 身分</strong>
-                        <br><span class="text-danger">* ID限英數。若「特教類別」有值，身分將自動鎖定為「特教生」。</span>
-                    </div>
-                    <textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	自閉症	男	多媒體系	特教生"></textarea>
-                    <div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div>
-                </div></div></div>
+                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別 (系統檢核)</strong><br><span class="text-danger">* 若資料不符，將以紅色標示，請在預覽列表中直接修改。</span><br><span class="text-primary fw-bold">* 提示：若「特教類別」有填寫，身分將自動鎖定為「特教生」。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
                 
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
@@ -136,8 +125,7 @@
                         </div>
                         <div class="table-responsive" style="max-height: 400px;">
                             <table class="table table-sm table-striped mb-0 text-center small align-middle">
-                                <!-- Swap Disability and Role Columns for preview -->
-                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>特教類別</th><th>性別 (點擊切換)</th><th>科系/單位</th><th>身分</th></tr></thead>
+                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別 (點擊切換)</th><th>科系/單位</th><th>特教類別</th></tr></thead>
                                 <tbody id="previewTableBody"></tbody>
                             </table>
                         </div>
@@ -149,9 +137,48 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Activity Manager -->
+            <!-- Tab 2: Activity Manager [MODIFIED: Table Input] -->
             <div class="tab-pane fade" id="pills-act-mgr">
-                <div class="card border-warning border-start border-4 mb-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#batchCreateCollapse"><h6 class="m-0 fw-bold text-dark"><i class="fas fa-plus-circle me-2"></i>批次建立活動 (點擊展開)</h6></div><div id="batchCreateCollapse" class="collapse"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>日期 | 活動名稱 | 活動類別 | 活動方式(選填) | 具體成效(選填)</strong></div><textarea id="batchActivityInput" class="form-control font-monospace" rows="6" placeholder="2025-03-20	學習策略工作坊	課業	工作坊	滿意度4.8"></textarea><div class="text-end mt-2"><button onclick="batchCreateActivities()" class="btn btn-warning fw-bold text-dark">批次建立活動</button></div></div></div></div>
+                <div class="card border-warning border-start border-4 mb-4">
+                    <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#batchCreateCollapse" style="cursor: pointer;">
+                        <h6 class="m-0 fw-bold text-dark"><i class="fas fa-plus-circle me-2"></i>批次建立活動 (點擊展開)</h6>
+                    </div>
+                    <div id="batchCreateCollapse" class="collapse">
+                        <div class="card-body">
+                            <div class="alert alert-light border small mb-2">
+                                <strong><i class="fas fa-edit me-1"></i> 表格輸入模式</strong>：請直接在下方欄位輸入，可無限新增。日期與名稱為必填。
+                            </div>
+                            
+                            <div class="table-responsive mb-2">
+                                <table class="table table-bordered table-sm align-middle">
+                                    <thead class="table-light text-center">
+                                        <tr>
+                                            <th style="width:140px;">開始日期 <span class="text-danger">*</span></th>
+                                            <th style="width:140px;">結束日期</th>
+                                            <th style="width:120px;">類別</th>
+                                            <th>活動名稱 <span class="text-danger">*</span></th>
+                                            <th style="width:100px;">方式</th>
+                                            <th style="width:150px;">成效/備註</th>
+                                            <th style="width:50px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="batchTableBody">
+                                        <!-- Dynamic Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="addBatchRow()"><i class="fas fa-plus me-1"></i>新增一列</button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="clearBatchTable()"><i class="fas fa-trash-alt me-1"></i>全部清空</button>
+                                </div>
+                                <button onclick="submitBatchActivities()" class="btn btn-warning fw-bold text-dark"><i class="fas fa-cloud-upload-alt me-1"></i>確認建立活動</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="yearMode" id="modeCalendar" autocomplete="off" checked onchange="changeYearMode('calendar')"><label class="btn btn-outline-light" for="modeCalendar">📅 一般年度</label><input type="radio" class="btn-check" name="yearMode" id="modeAcademic" autocomplete="off" onchange="changeYearMode('academic')"><label class="btn btn-outline-light" for="modeAcademic">🎓 學年度</label></div></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top"><tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th style="width: 8%" class="text-secondary">年度/學期</th><th>活動名稱</th><th class="text-end" style="width: 140px;">操作</th></tr></thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
             </div>
 
@@ -209,6 +236,8 @@
 
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
+        // Initialize Batch Table
+        addBatchRow();
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; document.getElementById('apiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
@@ -247,14 +276,12 @@
                 CONFIG_DISABILITIES = res.config.disabilities;
                 VALID_DISABILITIES = CONFIG_DISABILITIES; 
                 populateDropdowns();
-                // [NEW] Preload activities silently after login
                 preloadActivities();
                 showMainApp();
             } else { alert("載入系統資料失敗，請重試"); }
         });
     }
     
-    // Background pre-load
     function preloadActivities() {
         if(cachedActivities.length > 0) return;
         callApi({action:"getActivities"}, res => {
@@ -315,190 +342,71 @@
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
     function getAcademicDisplay(dStr){if(!dStr)return ""; const d=new Date(dStr); if(isNaN(d))return ""; const m=d.getMonth()+1; const y=d.getFullYear(); return (m>=8)?`${y-1911}-1`:((m===1)?`${y-1912}-1`:`${y-1912}-2`);}
     function getCalendarYear(dStr){return dStr ? dStr.split('-')[0] : "";}
-
     function changeYearMode(mode){currentYearMode=mode;delete document.getElementById('yearFilter').dataset.userSelected;updateYearFilter(cachedActivities);filterActivities();}
     function searchUser() { searchUserLocal(); }
-    
-    // [SMART IMPORT: AUTO-DETECT COLUMNS]
-    function previewImport(){
-        const raw=document.getElementById('importInput').value;
-        if(!raw.trim())return alert("無資料");
-        const lines=raw.split("\n");
-        usersToImport=[];
-        let hasError = false;
-        
-        lines.forEach(l=>{
-            if(!l.trim())return;
-            // Split by tab, trim values
-            const cols = l.split("\t").map(s=>s.trim());
-            
-            // --- Smart Detection Logic ---
-            let u = { id: "", name: "", role: "", gender: "", dept: "", disability: "" };
-            let remaining = [];
-
-            // Pass 1: Identification based on content
-            cols.forEach(val => {
-                if(!val) return;
-                
-                // Gender (Highest Certainty)
-                if(VALID_GENDERS.includes(val)) {
-                    u.gender = val;
-                    return;
-                }
-                
-                // Role (High Certainty)
-                let r = val;
-                if(r === "助理") r = "工讀生";
-                if(r === "輔導人員") r = "職員";
-                if(VALID_ROLES.includes(r)) {
-                    u.role = r;
-                    return;
-                }
-                
-                // Disability (High Certainty)
-                if(VALID_DISABILITIES.includes(val)) {
-                    u.disability = val;
-                    return;
-                }
-                
-                // Dept (Ends with common suffixes)
-                if(val.match(/(系|所|處|室|中心|學位學程)$/)) {
-                    u.dept = val;
-                    return;
-                }
-                
-                remaining.push(val);
-            });
-
-            // Pass 2: Handle remaining (ID vs Name vs Other Dept)
-            remaining.forEach(val => {
-                // ID: Alphanumeric, usually 5+ chars for student ID
-                if(!u.id && /^[A-Za-z0-9]+$/.test(val)) {
-                    u.id = val;
-                    return;
-                }
-                
-                // Name: Chinese 2-4 chars (Priority)
-                if(!u.name && /^[\u4e00-\u9fa5]{2,4}$/.test(val)) {
-                    u.name = val;
-                    return;
-                }
-                
-                // Fallback: If not Name/ID, treat as Dept
-                if(!u.dept) {
-                    u.dept = val;
-                }
-            });
-
-            // --- Post-Processing Rules ---
-            // 1. Force Role = 特教生 if disability exists
-            if(u.disability) {
-                u.role = "特教生";
-            }
-            
-            // 2. Validation
-            u.errors = {};
-            if(u.id && !/^[A-Za-z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
-            if(!u.name || u.name.length < 2 || u.name.length > 4) { u.errors.name = true; hasError = true; }
-            
-            if(!u.gender || !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }
-            
-            // Validate Role
-            if(u.role && !VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; }
-            if(!u.role && !u.disability) { u.errors.role = true; hasError = true; } // Must have role OR disability
-
-            if(u.role === "特教生") {
-                if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
-            }
-
-            usersToImport.push(u);
-        });
-
-        if(usersToImport.length===0) return alert("解析失敗，請確認資料格式");
-        renderImportTable(hasError);
-        document.getElementById('importPreviewArea').style.display='block';
-        document.getElementById('importCollapse').classList.remove('show');
-    }
-
-    function renderImportTable(initialErrorState) {
-        const tb = document.getElementById('previewTableBody');
-        tb.innerHTML = "";
-        let stillHasError = false;
-
-        usersToImport.forEach((u, idx) => {
-            const idCls = u.errors.id ? 'cell-error' : '';
-            const nameCls = u.errors.name ? 'cell-error' : '';
-            const roleCls = u.errors.role ? 'cell-error' : '';
-            const disCls = u.errors.disability ? 'cell-error' : '';
-            const genderErr = u.errors.gender ? 'border border-danger rounded p-1' : 'p-1';
-            
-            if(u.errors.id || u.errors.name || u.errors.disability || u.errors.gender || u.errors.role) stillHasError = true;
-
-            // Toggle Buttons for Gender
-            const isMale = u.gender === '男';
-            const isFemale = u.gender === '女';
-            
-            let genderHtml = `
-            <div class="d-flex justify-content-center gap-1 ${genderErr}">
-                <button type="button" class="btn btn-sm ${isMale ? 'btn-primary' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '男')">男</button>
-                <button type="button" class="btn btn-sm ${isFemale ? 'btn-danger' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '女')">女</button>
-            </div>`;
-
-            tb.innerHTML += `<tr>
-                <td class="${idCls}">${u.id}</td>
-                <td class="${nameCls}">${u.name}</td>
-                <td class="${disCls}">${u.disability}</td>
-                <td>${genderHtml}</td>
-                <td>${u.dept}</td>
-                <td class="${roleCls}"><span class="badge ${getRoleClass(u.role)} db-badge">${u.role||"缺"}</span></td>
-            </tr>`;
-        });
-
-        document.getElementById('previewCount').innerText = usersToImport.length;
-        updateSubmitButton(stillHasError);
-    }
-
-    function setImportGender(idx, val) {
-        usersToImport[idx].gender = val;
-        // Re-validate gender for this row
-        if (VALID_GENDERS.includes(val)) {
-            usersToImport[idx].errors.gender = false;
-        } else {
-            usersToImport[idx].errors.gender = true;
-        }
-        renderImportTable(); 
-    }
-
-    function updateSubmitButton(hasError) {
-        const btn = document.getElementById('btnSubmitImport');
-        const msg = document.getElementById('importErrorMsg');
-        if(hasError) {
-            btn.disabled = true; btn.innerText = "請修正錯誤欄位"; btn.classList.replace('btn-success', 'btn-secondary');
-            msg.style.display = 'block';
-        } else {
-            btn.disabled = false; btn.innerText = "確認寫入資料庫"; btn.classList.replace('btn-secondary', 'btn-success');
-            msg.style.display = 'none';
-        }
-    }
-    
-    function cancelImport() {
-        document.getElementById('importPreviewArea').style.display='none';
-        document.getElementById('importCollapse').classList.add('show');
-        usersToImport = [];
-    }
-
+    function previewImport(){const raw=document.getElementById('importInput').value;if(!raw.trim())return alert("無資料");const lines=raw.split("\n");usersToImport=[];let hasError = false; lines.forEach(l=>{if(!l.trim())return;const c=l.split("\t").map(s=>s.trim());if(c.length>=2 && (c[0]||c[1])){let u = { id: c[0] || "", name: c[1] || "", role: c[2] || "", gender: c[3] || "", dept: c[4] || "", disability: c[5] || "" };if(u.role==="助理") u.role="工讀生";if(u.role==="輔導人員") u.role="職員";if(u.disability && u.disability.trim() !== "") { u.role = "特教生"; }u.errors = {};if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }if(!u.name || u.name.length < 2 || u.name.length > 3) { u.errors.name = true; hasError = true; }if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }else if (!u.gender) { u.errors.gender = true; hasError = true; }if(!VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; }if(u.role === "特教生") { if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } } else { if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }usersToImport.push(u);}});if(usersToImport.length===0) return alert("解析失敗");renderImportTable(hasError);document.getElementById('importPreviewArea').style.display='block';document.getElementById('importCollapse').classList.remove('show');}
+    function renderImportTable(initialErrorState) {const tb = document.getElementById('previewTableBody');tb.innerHTML = "";let stillHasError = false;usersToImport.forEach((u, idx) => {const idCls = u.errors.id ? 'cell-error' : '';const nameCls = u.errors.name ? 'cell-error' : '';const roleCls = u.errors.role ? 'cell-error' : '';const disCls = u.errors.disability ? 'cell-error' : '';const genderErr = u.errors.gender ? 'border border-danger rounded p-1' : 'p-1';if(u.errors.id || u.errors.name || u.errors.disability || u.errors.gender || u.errors.role) stillHasError = true;const isMale = u.gender === '男';const isFemale = u.gender === '女';let genderHtml = `<div class="d-flex justify-content-center gap-1 ${genderErr}"><button type="button" class="btn btn-sm ${isMale ? 'btn-primary' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '男')">男</button><button type="button" class="btn btn-sm ${isFemale ? 'btn-danger' : 'btn-outline-secondary'} flex-fill" style="min-width:30px" onclick="setImportGender(${idx}, '女')">女</button></div>`;tb.innerHTML += `<tr><td class="${idCls}">${u.id}</td><td class="${nameCls}">${u.name}</td><td class="${roleCls}"><span class="badge ${getRoleClass(u.role)} db-badge">${u.role||"缺"}</span></td><td>${genderHtml}</td><td>${u.dept}</td><td class="${disCls}">${u.disability}</td></tr>`;});document.getElementById('previewCount').innerText = usersToImport.length;updateSubmitButton(stillHasError);}
+    function setImportGender(idx, val) {usersToImport[idx].gender = val;if (VALID_GENDERS.includes(val)) usersToImport[idx].errors.gender = false;else usersToImport[idx].errors.gender = true;renderImportTable();}
+    function updateSubmitButton(hasError) {const btn = document.getElementById('btnSubmitImport');const msg = document.getElementById('importErrorMsg');if(hasError) {btn.disabled = true; btn.innerText = "請修正錯誤欄位"; btn.classList.replace('btn-success', 'btn-secondary');msg.style.display = 'block';} else {btn.disabled = false; btn.innerText = "確認寫入資料庫"; btn.classList.replace('btn-secondary', 'btn-success');msg.style.display = 'none';}}
+    function cancelImport() {document.getElementById('importPreviewArea').style.display='none';document.getElementById('importCollapse').classList.add('show');usersToImport = [];}
     function submitImport(){if(usersToImport.length===0)return;callApi({action:"importUsers",users:usersToImport},()=>{alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
-    
-    function loadActivityList(f=false){
-        const tb=document.getElementById('activityListBody');
-        if(f || !cachedActivities || cachedActivities.length===0){
-            tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';
-            callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });
-        }else{ filterActivities(); }
-    }
+    function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
     function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>ys.add(currentYearMode==='calendar'?getCalendarYear(a.date):getAcademicYear(a.date).toString()));}const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar')ty=today.getFullYear().toString();else{const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`);if(yf.dataset.userSelected!=='true'&&sYs.includes(ty))yf.value=ty;else if(Array.from(yf.options).some(o=>o.value===cv))yf.value=cv;}
     function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${JSON.stringify(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${JSON.stringify(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${JSON.stringify(a)})'><i class="fas fa-trash"></i></button></td>`;tb.appendChild(r);});}
-    function batchCreateActivities(){const raw=document.getElementById('batchActivityInput').value;if(!raw.trim())return alert("請輸入");const lines=raw.split("\n");let newActs=[];lines.forEach(l=>{const c=l.split("\t").map(s=>s.trim());if(c.length>=2)newActs.push({date:c[0],name:c[1],category:c[2]||"未分類",method:c[3]||"",outcome:c[4]||""});});if(newActs.length===0)return alert("解析失敗");callApi({action:"batchCreateActivities",activities:newActs},()=>{alert("建立成功");document.getElementById('batchActivityInput').value="";loadActivityList(true);});}
+
+    // [NEW] Dynamic Batch Row Management
+    function addBatchRow() {
+        const tbody = document.getElementById('batchTableBody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="date" class="form-control form-control-sm batch-start"></td>
+            <td><input type="date" class="form-control form-control-sm batch-end"></td>
+            <td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td>
+            <td><input type="text" class="form-control form-control-sm batch-name"></td>
+            <td><input type="text" class="form-control form-control-sm batch-method"></td>
+            <td><input type="text" class="form-control form-control-sm batch-outcome"></td>
+            <td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+    }
+    
+    function clearBatchTable() {
+        document.getElementById('batchTableBody').innerHTML = "";
+        addBatchRow();
+    }
+
+    function submitBatchActivities() {
+        const rows = document.querySelectorAll('#batchTableBody tr');
+        let newActs = [];
+        
+        rows.forEach(row => {
+            const start = row.querySelector('.batch-start').value;
+            const end = row.querySelector('.batch-end').value;
+            const cat = row.querySelector('.batch-cat').value;
+            const name = row.querySelector('.batch-name').value.trim();
+            const method = row.querySelector('.batch-method').value.trim();
+            const outcome = row.querySelector('.batch-outcome').value.trim();
+            
+            if(start && name) {
+                newActs.push({
+                    date: start,
+                    endDate: end || start,
+                    category: cat || "未分類",
+                    name: name,
+                    method: method,
+                    outcome: outcome
+                });
+            }
+        });
+
+        if(newActs.length === 0) return alert("請至少填寫一列完整的活動資料 (日期與名稱必填)");
+
+        callApi({action: "batchCreateActivities", activities: newActs}, (res) => {
+            alert(`成功建立 ${res.count} 筆活動！`);
+            clearBatchTable();
+            loadActivityList(true);
+        });
+    }
     
     function openEditModal(act){document.getElementById('editDate').value=act.date;document.getElementById('editEndDate').value=act.endDate||act.date;document.getElementById('editName').value=act.name;document.getElementById('editCategory').value=act.category;document.getElementById('editMethod').value=act.method||"";document.getElementById('editOutcome').value=act.outcome||"";document.getElementById('editOriginalName').value=act.name;document.getElementById('editOriginalDate').value=act.date;editModal.show();}
     function submitEditActivity(){const nd={date:document.getElementById('editDate').value,endDate:document.getElementById('editEndDate').value,name:document.getElementById('editName').value,category:document.getElementById('editCategory').value,method:document.getElementById('editMethod').value,outcome:document.getElementById('editOutcome').value};if(!nd.name||!nd.date)return alert("必填");callApi({action:"updateActivity",originalName:document.getElementById('editOriginalName').value,originalDate:document.getElementById('editOriginalDate').value,newData:nd},()=>{alert("更新成功");editModal.hide();loadActivityList(true);});}
@@ -558,6 +466,7 @@
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
+        
         if (type === 'basic') {
             basicTbl.style.display = 'table';
             disTbl.style.display = 'none';
