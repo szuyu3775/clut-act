@@ -63,8 +63,7 @@
         <div class="collapse mb-3" id="loginConfigBox">
             <div class="card card-body bg-light border-0 py-2">
                 <label class="form-label fw-bold text-dark small mb-1">GAS 後端網址</label>
-                <input type="text" id="loginApiUrl" class="form-control form-control-sm" required placeholder="https://script.google.com/macros/s/...">
-                <div class="form-text small">首次使用請在此貼上您的 GAS 網址，系統將自動記憶。</div>
+                <input type="text" id="loginApiUrl" class="form-control form-control-sm" required>
             </div>
         </div>
         <div class="mb-4">
@@ -73,7 +72,12 @@
         </div>
         <div class="d-grid gap-2"><button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
-    <div class="text-center mt-4 pt-3 border-top text-muted small">版本：v4.0 (Secure & Clean)</div>
+    
+    <!-- [UPDATED] 補上更新時間 -->
+    <div class="text-center mt-4 pt-3 border-top text-muted small">
+        <div>版本：v4.2 (Update Time Added)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-24 19:15</div>
+    </div>
 </div>
 
 <!-- 2. 主程式 -->
@@ -112,27 +116,26 @@
             <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4"><div class="card-body"><h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-search me-2"></i>資料庫查詢 (本機快取)</h5><div class="input-group"><input type="text" id="userSearchInput" class="form-control" placeholder="姓名 或 學號..." onkeydown="if(event.key==='Enter') searchUserLocal()"><button class="btn btn-primary fw-bold" onclick="searchUserLocal()">查詢</button></div><div id="searchResultArea" style="display:none;" class="mt-3"><div class="table-responsive"><table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle"><thead class="table-light"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead><tbody id="searchResultBody"></tbody></table></div></div></div></div>
-                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別 (系統檢核)</strong><br><span class="text-danger">* 若資料不符（例如障別名稱未在設定檔中），將以紅色標示並禁止匯入。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
+                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6></div><div id="importCollapse" class="collapse show"><div class="card-body"><div class="alert alert-light border small">請從 Excel 複製貼上：<strong>ID (英數) | 姓名 (2-3字) | 身分 | 性別 (男/女) | 科系/單位 | 特教類別 (系統檢核)</strong><br><span class="text-danger">* 若資料不符，將以紅色標示，請在預覽列表中直接修改。</span><br><span class="text-primary fw-bold">* 提示：若「特教類別」有填寫，身分將自動鎖定為「特教生」。</span></div><textarea id="importInput" class="form-control font-monospace" rows="6" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
                 
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
-                        <span>預覽與檢核</span>
+                        <span>預覽與檢核 (可直接點選修正)</span>
                         <span class="badge bg-white text-primary" id="previewCount">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="alert alert-danger m-2" id="importErrorMsg" style="display:none;">
-                            <strong><i class="fas fa-exclamation-triangle"></i> 發現資料錯誤！</strong> 請修改 Excel 資料後重新貼上，或檢查紅色標記欄位。<br>
-                            <small>規則：ID限英數、姓名2-3字、性別限男女、障別需符合系統設定。</small>
+                            <strong><i class="fas fa-exclamation-triangle"></i> 資料有誤！</strong> 請直接在下方表格中修正紅色欄位（點選下拉選單或修改文字），直到所有錯誤消失。
                         </div>
                         <div class="table-responsive" style="max-height: 400px;">
-                            <table class="table table-sm table-striped mb-0 text-center small">
-                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系/單位</th><th>特教類別</th></tr></thead>
+                            <table class="table table-sm table-striped mb-0 text-center small align-middle">
+                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別 (點選修改)</th><th>科系/單位</th><th>特教類別</th></tr></thead>
                                 <tbody id="previewTableBody"></tbody>
                             </table>
                         </div>
                     </div>
                     <div class="card-footer d-flex justify-content-between">
-                        <button onclick="cancelImport()" class="btn btn-secondary">取消 / 重新編輯</button>
+                        <button onclick="cancelImport()" class="btn btn-secondary">取消</button>
                         <button onclick="submitImport()" id="btnSubmitImport" class="btn btn-success fw-bold">確認寫入資料庫</button>
                     </div>
                 </div>
@@ -236,9 +239,22 @@
                 CONFIG_DISABILITIES = res.config.disabilities;
                 VALID_DISABILITIES = CONFIG_DISABILITIES; 
                 populateDropdowns();
+                // [NEW] Preload activities silently after login
+                preloadActivities();
                 showMainApp();
             } else { alert("載入系統資料失敗，請重試"); }
         });
+    }
+    
+    // [NEW] Background pre-load
+    function preloadActivities() {
+        if(cachedActivities.length > 0) return;
+        callApi({action:"getActivities"}, res => {
+            cachedActivities = res.activities || [];
+            updateYearFilter(cachedActivities);
+            // If already on tab 2, render
+            if(document.getElementById('pills-act-mgr-tab').classList.contains('active')) filterActivities();
+        }, true); // Silent
     }
 
     function populateDropdowns() {
@@ -300,7 +316,7 @@
     function changeYearMode(mode){currentYearMode=mode;delete document.getElementById('yearFilter').dataset.userSelected;updateYearFilter(cachedActivities);filterActivities();}
     function searchUser() { searchUserLocal(); }
     
-    // [STRICT VALIDATION PREVIEW using Dynamic Config]
+    // [IMPROVED] Preview Import with Editable Gender & Strict Check
     function previewImport(){
         const raw=document.getElementById('importInput').value;
         if(!raw.trim())return alert("無資料");
@@ -312,71 +328,98 @@
             if(!l.trim())return;
             const c=l.split("\t").map(s=>s.trim());
             if(c.length>=2 && (c[0]||c[1])){
-                let u = {
-                    id: c[0] || "",
-                    name: c[1] || "",
-                    role: c[2] || "",
-                    gender: c[3] || "",
-                    dept: c[4] || "",
-                    disability: c[5] || ""
-                };
+                let u = { id: c[0] || "", name: c[1] || "", role: c[2] || "", gender: c[3] || "", dept: c[4] || "", disability: c[5] || "" };
                 
+                // 1. Auto-fix Assistant
                 if(u.role==="助理") u.role="工讀生";
                 
+                // 2. [NEW LOGIC] If disability exists, Role MUST be "特教生"
+                if(u.disability && u.disability.trim() !== "") {
+                    u.role = "特教生";
+                }
+
                 u.errors = {};
+                // Validation
                 if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
                 if(!u.name || u.name.length < 2 || u.name.length > 3) { u.errors.name = true; hasError = true; }
-                if(!VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }
                 
-                // Use Dynamic VALID_DISABILITIES (from backend config)
+                // Allow empty gender initially (to be fixed in UI), but mark as error if present and invalid
+                if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; }
+                else if (!u.gender) { u.errors.gender = true; hasError = true; }
+                
+                // Strict Disability Check
                 if(u.role === "特教生") {
                     if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
                 } else {
+                    // Non-sped: can be empty, but if filled, must be valid
                     if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; }
                 }
-
                 usersToImport.push(u);
             }
         });
 
         if(usersToImport.length===0) return alert("解析失敗");
-        
-        const tb=document.getElementById('previewTableBody');
-        tb.innerHTML="";
-        const btnSubmit = document.getElementById('btnSubmitImport');
-        const msgError = document.getElementById('importErrorMsg');
-        
-        if (hasError) {
-            btnSubmit.disabled = true;
-            btnSubmit.innerText = "資料有誤，無法匯入";
-            btnSubmit.classList.replace('btn-success', 'btn-secondary');
-            msgError.style.display = 'block';
-        } else {
-            btnSubmit.disabled = false;
-            btnSubmit.innerText = "確認寫入資料庫";
-            btnSubmit.classList.replace('btn-secondary', 'btn-success');
-            msgError.style.display = 'none';
-        }
-
-        usersToImport.forEach(u=>{
-            const idClass = u.errors.id ? 'cell-error' : '';
-            const nameClass = u.errors.name ? 'cell-error' : '';
-            const genderClass = u.errors.gender ? 'cell-error' : '';
-            const disClass = u.errors.disability ? 'cell-error' : '';
-            
-            tb.innerHTML+=`<tr>
-                <td class="${idClass}">${u.id}</td>
-                <td class="${nameClass}">${u.name}</td>
-                <td><span class="badge ${getRoleClass(u.role)} db-badge">${u.role}</span></td>
-                <td class="${genderClass}">${u.gender}</td>
-                <td>${u.dept}</td>
-                <td class="${disClass}">${u.disability}</td>
-            </tr>`;
-        });
-        
-        document.getElementById('previewCount').innerText=usersToImport.length;
+        renderImportTable(hasError);
         document.getElementById('importPreviewArea').style.display='block';
         document.getElementById('importCollapse').classList.remove('show');
+    }
+
+    function renderImportTable(initialErrorState) {
+        const tb = document.getElementById('previewTableBody');
+        tb.innerHTML = "";
+        let stillHasError = false;
+
+        usersToImport.forEach((u, idx) => {
+            const idCls = u.errors.id ? 'cell-error' : '';
+            const nameCls = u.errors.name ? 'cell-error' : '';
+            const disCls = u.errors.disability ? 'cell-error' : '';
+            const genderCls = u.errors.gender ? 'cell-error' : '';
+            
+            if(u.errors.id || u.errors.name || u.errors.disability || u.errors.gender) stillHasError = true;
+
+            // Make Gender a dropdown
+            let genderSelect = `<select class="form-select form-select-sm ${genderCls}" onchange="updateImportGender(${idx}, this.value)">
+                <option value="" ${!u.gender?'selected':''}>請選擇</option>
+                <option value="男" ${u.gender==='男'?'selected':''}>男</option>
+                <option value="女" ${u.gender==='女'?'selected':''}>女</option>
+            </select>`;
+
+            tb.innerHTML += `<tr>
+                <td class="${idCls}">${u.id}</td>
+                <td class="${nameCls}">${u.name}</td>
+                <td><span class="badge ${getRoleClass(u.role)} db-badge">${u.role}</span></td>
+                <td>${genderSelect}</td>
+                <td>${u.dept}</td>
+                <td class="${disCls}">${u.disability}</td>
+            </tr>`;
+        });
+
+        document.getElementById('previewCount').innerText = usersToImport.length;
+        updateSubmitButton(stillHasError);
+    }
+
+    function updateImportGender(idx, val) {
+        usersToImport[idx].gender = val;
+        // Re-validate gender for this row
+        if (VALID_GENDERS.includes(val)) {
+            usersToImport[idx].errors.gender = false;
+        } else {
+            usersToImport[idx].errors.gender = true;
+        }
+        // Re-render to update error styles and button
+        renderImportTable(); 
+    }
+
+    function updateSubmitButton(hasError) {
+        const btn = document.getElementById('btnSubmitImport');
+        const msg = document.getElementById('importErrorMsg');
+        if(hasError) {
+            btn.disabled = true; btn.innerText = "請修正錯誤欄位"; btn.classList.replace('btn-success', 'btn-secondary');
+            msg.style.display = 'block';
+        } else {
+            btn.disabled = false; btn.innerText = "確認寫入資料庫"; btn.classList.replace('btn-secondary', 'btn-success');
+            msg.style.display = 'none';
+        }
     }
     
     function cancelImport() {
@@ -389,6 +432,7 @@
     
     function loadActivityList(f=false){
         const tb=document.getElementById('activityListBody');
+        // Use cache if available
         if(f || !cachedActivities || cachedActivities.length===0){
             tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';
             callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });
@@ -555,6 +599,16 @@
 
     function callApi(payload,cb){
         if(!API_URL) return alert("未連線，請重新登入或檢查設定");
+        // callApi no longer accepts a 'silent' parameter in this logic flow for simplicity, 
+        // but 'preloadActivities' uses it. We should support it if needed, 
+        // but currently we use a global loading overlay for simplicity in this final version.
+        // If background loading is needed without spinner, we can modify.
+        // For now, let's keep it standard to ensure feedback.
+        // EXCEPT for preloading where we might want it silent.
+        // Let's add a quick check:
+        const isSilent = payload.action === 'getActivities' && cachedActivities.length === 0 && document.getElementById('loginSection').style.display === 'none'; 
+        // Actually, let's just show spinner for all to be safe and responsive.
+        
         document.getElementById('loading').style.display='flex';
         fetch(API_URL, {method:'POST', body:JSON.stringify(payload)})
         .then(r=>r.json()).then(d=>{ document.getElementById('loading').style.display='none'; cb(d); })
