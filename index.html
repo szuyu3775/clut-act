@@ -111,8 +111,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v35.2 (Fix Missing Activity Functions)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 14:14</div>
+        <div>版本：v36.0 (Cascading Delete Fix)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 14:23</div>
     </div>
 </div>
 
@@ -186,6 +186,8 @@
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -513,7 +515,7 @@
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
-
+    
     // --- 4. Login & System Load ---
     function performLogin(e) {
         e.preventDefault();
