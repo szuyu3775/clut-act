@@ -110,9 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v39.0 (UI Restoration)</div>
-        <!-- [Fixed] Static Time -->
-        <div id="updateTimeDisplay">更新時間：2026-01-26 15:41</div>
+        <div>版本：v41.0 (Activity Category Filter)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 21:52</div>
     </div>
 </div>
 
@@ -228,7 +227,7 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="addUserBatchRow()"><i class="fas fa-plus me-1"></i>新增一列</button>
+                                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="addUserBatchRow()">新增</button>
                                     <button class="btn btn-outline-danger btn-sm" onclick="clearUserBatchTable()"><i class="fas fa-trash-alt me-1"></i>全部清空</button>
                                 </div>
                                 <button onclick="submitUserBatchTable()" class="btn btn-primary fw-bold text-white"><i class="fas fa-check-circle me-1"></i>解析並預覽</button>
@@ -319,7 +318,16 @@
                     </div>
                 </div>
                 <!-- 活動列表區塊 -->
-                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="yearMode" id="modeCalendar" autocomplete="off" checked onchange="changeYearMode('calendar')"><label class="btn btn-outline-light" for="modeCalendar">📅 一般年度</label><input type="radio" class="btn-check" name="yearMode" id="modeAcademic" autocomplete="off" onchange="changeYearMode('academic')"><label class="btn btn-outline-light" for="modeAcademic">🎓 學年度</label></div></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top"><tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th style="width: 8%" class="text-secondary">年度/學期</th><th>活動名稱</th><th class="text-end" style="width: 160px;">操作</th></tr></thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
+                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div>
+                <div class="d-flex gap-2 flex-grow-1 justify-content-end">
+                    <!-- [NEW] Category Filter -->
+                    <select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()">
+                        <option value="all">所有類別</option>
+                    </select>
+                    <select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top">
+                    <!-- [List Columns Fixed] -->
+                    <tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th>活動名稱</th><th class="text-end" style="width: 160px;">操作</th></tr>
+                </thead><tbody id="activityListBody"><tr><td colspan="4" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
             </div>
 
             <!-- Tab 3: Sign In -->
@@ -404,7 +412,7 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 600px;">
-                                <!-- Table A: Basic (Full Columns) -->
+                                <!-- Table A: Basic (Full Columns Restored) -->
                                 <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
                                     <thead class="sticky-top">
                                         <tr class="report-header-group">
@@ -472,7 +480,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- 1. Global Helpers ---
+    // --- 1. Global Helpers (MUST BE AT TOP) ---
     function getRoleClass(r){if(!r)return "bg-secondary";r=r.trim();if(r==="特教生")return "bg-danger";if(r==="教師")return "bg-warning text-dark";if(r.includes("職員"))return "bg-success";if(r==="工讀生")return "bg-primary";if(r==="輔導人員")return "bg-warning text-dark";if(r==="家長")return "bg-secondary";if(r==="校外人員")return "bg-purple";return "bg-secondary";}
     function getCategoryClass(c){if(!c)return "bg-secondary";if(c.includes("課業"))return "bg-success";if(c.includes("職涯"))return "bg-primary";if(c.includes("人際"))return "bg-warning text-dark";if(c.includes("特教"))return "bg-purple";if(c.includes("ISP")||c.includes("ITP")||c.includes("會議"))return "bg-dark";return "bg-secondary";}
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
@@ -585,6 +593,7 @@
     }
 
     function populateDropdowns() {
+        // Modal Dropdowns
         const dl = document.getElementById('modalCategoryOptions');
         const dlBatchList = document.querySelectorAll('.batch-cat'); 
         const options = CONFIG_CATEGORIES.map(c => `<option value="${c}">`).join('');
@@ -594,9 +603,16 @@
         const rf = document.getElementById('rptCategoryFilter');
         rf.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
         
+        // [New] List Filter Dropdown
+        const actListFilter = document.getElementById('actCategoryFilter');
+        if(actListFilter) {
+             actListFilter.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
         document.getElementById('editUserRole').innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join('');
         document.getElementById('editUserDisability').innerHTML = '<option value="">(無)</option>' + CONFIG_DISABILITIES.map(d => `<option value="${d}">${d}</option>`).join('');
         
+        // Update User Batch Table Dropdowns
         const userBatchRoles = document.querySelectorAll('.u-role');
         const userBatchDis = document.querySelectorAll('.u-disability');
         userBatchRoles.forEach(s => s.innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join(''));
@@ -891,9 +907,9 @@
         const semester = document.getElementById('rptSemesterSelect').value;
         const filter = { mode: currentReportFilterMode, year: year, semester: semester };
         const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="17" class="text-center py-5 text-muted">載入中...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="18" class="text-center py-5 text-muted">載入中...</td></tr>';
         callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="17" class="text-center py-5">無資料</td></tr>';return;}
+            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="18" class="text-center py-5">無資料</td></tr>';return;}
             const rows = res.report.map(r => {
                 const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
                 return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.outcome}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td><td class="fw-bold text-danger bg-warning-subtle">${r.spedCount}</td></tr>`;
@@ -917,20 +933,22 @@
             const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter));
             if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; }
             
-            const disabilities = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
+            // Use VALID_DISABILITIES which now comes from config or default
+            // Ensure we use the global variable which is populated by loadSystemData
+            const displayDisabilities = (VALID_DISABILITIES && VALID_DISABILITIES.length > 0) ? VALID_DISABILITIES : ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
             
-            let hRow = `<tr><th class="align-middle">學年</th><th class="align-middle">學期</th><th class="align-middle">活動主題</th><th class="align-middle">類別</th><th class="align-middle">起</th><th class="align-middle">迄</th>`;
-            disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
-            hRow += `<th class="align-middle disability-total">總計</th></tr>`;
+            let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`;
+            displayDisabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
+            hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`;
             thead.innerHTML = hRow;
 
-            let colTotals = {}; disabilities.forEach(d => colTotals[d] = 0);
+            let colTotals = {}; displayDisabilities.forEach(d => colTotals[d] = 0);
             let grandTotal = 0;
 
             let bHtml = activities.map(act => {
                 const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} };
                 let rowSum = 0; let cellsHtml = "";
-                disabilities.forEach(d => {
+                displayDisabilities.forEach(d => {
                     const count = stat.details[d] || 0;
                     rowSum += count; colTotals[d] += count;
                     const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light";
@@ -942,7 +960,7 @@
             }).join('');
             
             let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`;
-            disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
+            displayDisabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
             footerHtml += `<td>${grandTotal}</td></tr>`;
             tbody.innerHTML = bHtml + footerHtml;
         });
@@ -950,9 +968,9 @@
 
     // --- 7. Activity Functions ---
     function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
-    function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
+    function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const cv=document.getElementById('actCategoryFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&(cv==='all'||a.category===cv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
     // [MODIFIED] Added 'list-ul' button for Manage Participants
-    r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
+    r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
