@@ -48,11 +48,10 @@
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 40px; font-size: 0.8em; }
         
-        /* Vertical Header */
+        /* [Fixed] Vertical Header for Disabilities (Removed Rotate) */
         .vertical-header {
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            transform: rotate(180deg);
             white-space: nowrap;
             height: 120px;
             padding: 5px 2px;
@@ -111,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v36.0 (Cascading Delete Fix)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 14:23</div>
+        <div>版本：v36.0 (Stable Fix)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 15:05</div>
     </div>
 </div>
 
@@ -814,24 +813,30 @@
     function cancelImport() { document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); usersToImport = []; }
     function submitImport(){if(usersToImport.length===0)return; document.getElementById('loading').style.display='flex'; callApi({action:"importUsers",users:usersToImport},()=>{ document.getElementById('loading').style.display='none'; alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
 
-    // --- 6. Report Logic ---
+    // --- 6. Report Logic (NEW MENU SYSTEM) ---
     function initReportMenu() {
         document.getElementById('reportMenuContainer').style.display = 'block';
         document.getElementById('reportContentContainer').style.display = 'none';
+        
+        // Silent update year list
         if (cachedActivities && cachedActivities.length > 0) { updateReportYearSelect(); } 
         else { callApi({action:"getActivities"}, res => { cachedActivities = res.activities || []; updateReportYearSelect(); }); }
     }
+
     function selectReport(type) {
         currentReportType = type;
         document.getElementById('reportMenuContainer').style.display = 'none';
         document.getElementById('reportContentContainer').style.display = 'block';
+        
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
         const mergeControl = document.getElementById('mergeControl');
+        
         // Reset Views
         basicTbl.style.display = 'none';
         disTbl.style.display = 'none';
+        
         if (type === 'basic') {
             document.getElementById('reportTitle').innerText = '校務基本資料庫';
             basicTbl.style.display = 'table';
@@ -846,14 +851,21 @@
             loadDisabilityReport();
         }
     }
+
     function backToReportMenu() {
         document.getElementById('reportContentContainer').style.display = 'none';
         document.getElementById('reportMenuContainer').style.display = 'block';
+        // Clear tables to free memory
         document.getElementById('reportTableBodyBasic').innerHTML = '';
         document.getElementById('disabilityHead').innerHTML = '';
         document.getElementById('disabilityBody').innerHTML = '';
     }
-    function loadSelectedReport() { if (currentReportType === 'basic') loadReportData(); else loadDisabilityReport(); }
+
+    function loadSelectedReport() {
+        if (currentReportType === 'basic') loadReportData();
+        else loadDisabilityReport();
+    }
+
     function changeReportFilterMode(mode) {
         currentReportFilterMode = mode;
         const semSelect = document.getElementById('rptSemesterSelect');
@@ -861,6 +873,7 @@
         updateReportYearSelect(); 
         loadSelectedReport();
     }
+    
     function updateReportYearSelect() {
         const sel = document.getElementById('rptYearSelect');
         const years = new Set();
@@ -871,6 +884,7 @@
         sorted.forEach(y => { const lbl = (currentReportFilterMode === 'calendar') ? `${y} 年` : `${y} 學年度`; sel.innerHTML += `<option value="${y}">${lbl}</option>`; });
         if(sel.dataset.userSelected!=='true') { if(sorted.includes(ty)) sel.value = ty; else if(sorted.length > 0) sel.value = sorted[0]; }
     }
+    
     function loadReportData() {
         const year = document.getElementById('rptYearSelect').value;
         const semester = document.getElementById('rptSemesterSelect').value;
@@ -886,11 +900,13 @@
             tbody.innerHTML = rows;
         });
     }
+
     function loadDisabilityReport() {
         const year = document.getElementById('rptYearSelect').value;
         const semester = document.getElementById('rptSemesterSelect').value;
         const categoryFilter = document.getElementById('rptCategoryFilter').value;
         const merge = document.getElementById('mergeByNameCheck').checked; 
+        
         const filter = { mode: currentReportFilterMode, year: year, semester: semester };
         const thead = document.getElementById('disabilityHead');
         const tbody = document.getElementById('disabilityBody');
@@ -900,20 +916,22 @@
             const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter));
             if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; }
             
-            const disabilities = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
+            // Use VALID_DISABILITIES which now comes from config or default
+            // Ensure we use the global variable which is populated by loadSystemData
+            const displayDisabilities = (VALID_DISABILITIES && VALID_DISABILITIES.length > 0) ? VALID_DISABILITIES : ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
             
-            let hRow = `<tr><th class="align-middle">學年</th><th class="align-middle">學期</th><th class="align-middle">活動主題</th><th class="align-middle">類別</th><th class="align-middle">起</th><th class="align-middle">迄</th>`;
-            disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
-            hRow += `<th class="align-middle disability-total">總計</th></tr>`;
+            let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`;
+            displayDisabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
+            hRow += `<th rowspan="2" class="disability-total">總計</th></tr>`;
             thead.innerHTML = hRow;
 
-            let colTotals = {}; disabilities.forEach(d => colTotals[d] = 0);
+            let colTotals = {}; displayDisabilities.forEach(d => colTotals[d] = 0);
             let grandTotal = 0;
 
             let bHtml = activities.map(act => {
                 const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} };
                 let rowSum = 0; let cellsHtml = "";
-                disabilities.forEach(d => {
+                displayDisabilities.forEach(d => {
                     const count = stat.details[d] || 0;
                     rowSum += count; colTotals[d] += count;
                     const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light";
@@ -925,7 +943,7 @@
             }).join('');
             
             let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`;
-            disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
+            displayDisabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
             footerHtml += `<td>${grandTotal}</td></tr>`;
             tbody.innerHTML = bHtml + footerHtml;
         });
@@ -937,7 +955,6 @@
     // [MODIFIED] Added 'list-ul' button for Manage Participants
     r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
-    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
