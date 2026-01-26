@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v25.0 (Final Fix)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 18:00</div>
+        <div>版本：v25.1 (Fixed Missing Function)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 18:05</div>
     </div>
 </div>
 
@@ -355,7 +355,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- 1. Global Helpers (MUST BE AT TOP) ---
+    // --- 1. Global Helpers ---
     function getRoleClass(r){if(!r)return "bg-secondary";r=r.trim();if(r==="特教生")return "bg-danger";if(r==="教師")return "bg-warning text-dark";if(r.includes("職員"))return "bg-success";if(r==="工讀生")return "bg-primary";if(r==="輔導人員")return "bg-warning text-dark";if(r==="家長")return "bg-secondary";if(r==="校外人員")return "bg-purple";return "bg-secondary";}
     function getCategoryClass(c){if(!c)return "bg-secondary";if(c.includes("課業"))return "bg-success";if(c.includes("職涯"))return "bg-primary";if(c.includes("人際"))return "bg-warning text-dark";if(c.includes("特教"))return "bg-purple";if(c.includes("ISP")||c.includes("ITP")||c.includes("會議"))return "bg-dark";return "bg-secondary";}
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
@@ -416,7 +416,6 @@
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.disabled = true; btnLogin.innerText = "驗證中...";
         
-        // Local Password Check (1234)
         if(pwd !== "1234") {
              btnLogin.disabled = false; btnLogin.innerText = "登入系統";
              return alert("密碼錯誤");
@@ -462,6 +461,83 @@
             }
         });
     }
+
+    // --- 7. Activity Functions (Missing Function Added Here) ---
+    function updateYearFilter(acts){
+        const yf=document.getElementById('yearFilter');
+        const cv=yf.value;
+        const ys=new Set();
+        if(acts){
+            acts.forEach(a=>{
+                if (currentYearMode==='calendar') {
+                    ys.add(getCalendarYear(a.date));
+                } else {
+                    ys.add(getAcademicYear(a.date).toString());
+                }
+            });
+        }
+        const sYs=Array.from(ys).sort().reverse();
+        
+        let ty='';
+        const today=new Date();
+        if(currentYearMode==='calendar') {
+            ty=today.getFullYear().toString();
+        } else {
+            const m=today.getMonth()+1;
+            const y=today.getFullYear();
+            ty=((m>=8)?(y-1911):(y-1912)).toString();
+        }
+        
+        yf.innerHTML='<option value="all">全部</option>';
+        sYs.forEach(y=>{
+            yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;
+        });
+        
+        if(yf.dataset.userSelected!=='true'){
+            if(sYs.includes(ty)) yf.value=ty;
+            else if(sYs.length>0) yf.value=sYs[0];
+        } else if(Array.from(yf.options).some(o=>o.value===cv)) {
+            yf.value=cv;
+        }
+    }
+
+    function loadActivityList(f=false){
+        const tb=document.getElementById('activityListBody');
+        if(f || !cachedActivities || cachedActivities.length===0){
+            tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';
+            callApi({action:"getActivities"},res=>{ 
+                cachedActivities = res.activities || []; 
+                updateYearFilter(cachedActivities); 
+                filterActivities(); 
+            });
+        }else{ 
+            filterActivities(); 
+        }
+    }
+
+    function filterActivities(){
+        const tb=document.getElementById('activityListBody');
+        const yv=document.getElementById('yearFilter').value;
+        const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();
+        let f=cachedActivities.filter(a=>{
+            let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();
+            return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));
+        });
+        f.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        tb.innerHTML="";
+        if(f.length===0){
+            tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';
+            return;
+        }
+        f.forEach(a=>{
+            const r=document.createElement('tr');
+            let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
+            r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
+            tb.appendChild(r);
+        });
+    }
+
+    // ... [Rest of Helper Functions] ...
 
     function preloadActivities() {
         if(cachedActivities.length > 0) return;
@@ -583,12 +659,42 @@
         document.getElementById('loading').style.display='flex';
         callApi({action:"importUsers", users:[u]}, () => { btn.disabled = false; userEditModal.hide(); loadSystemData(); alert("資料更新成功！"); });
     }
+    
+    // [IMPROVED] Import Logic with Header Detection
+    function detectHeaderMapping(line) {
+        if (!line) return null;
+        const cols = line.split("\t").map(s => s.trim().toLowerCase());
+        const map = {};
+        let foundCount = 0;
+        const keywords = {
+            id: ['id', '學號', '編號'],
+            name: ['姓名', '名字', 'name'],
+            role: ['身分', '身份', '職務', 'role'],
+            gender: ['性別', 'gender'],
+            dept: ['科系', '單位', '系所', 'dept'],
+            disability: ['特教類別', '障別', 'disability']
+        };
+        cols.forEach((col, index) => {
+            for (const [key, words] of Object.entries(keywords)) {
+                if (words.some(w => col.includes(w))) {
+                    map[key] = index;
+                    foundCount++;
+                    break;
+                }
+            }
+        });
+        return foundCount >= 2 ? map : null; 
+    }
+
     function previewImport(){
-        const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); const lines=raw.split("\n"); usersToImport=[]; let hasError = false;
+        const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); 
+        const lines=raw.split("\n").filter(l=>l.trim()); 
+        usersToImport=[]; 
+        let hasError = false;
         
         const headerMap = detectHeaderMapping(lines[0]);
         const startRow = headerMap ? 1 : 0;
-
+        
         for(let i=startRow; i<lines.length; i++) {
             const c=lines[i].split("\t").map(s=>s.trim());
             let u = { id: "", name: "", role: "", gender: "", dept: "", disability: "" };
@@ -641,32 +747,6 @@
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('importCollapse').classList.remove('show');
     }
     
-    // [IMPROVED] Import Logic with Header Detection
-    function detectHeaderMapping(line) {
-        if (!line) return null;
-        const cols = line.split("\t").map(s => s.trim().toLowerCase());
-        const map = {};
-        let foundCount = 0;
-        const keywords = {
-            id: ['id', '學號', '編號'],
-            name: ['姓名', '名字', 'name'],
-            role: ['身分', '身份', '職務', 'role'],
-            gender: ['性別', 'gender'],
-            dept: ['科系', '單位', '系所', 'dept'],
-            disability: ['特教類別', '障別', 'disability']
-        };
-        cols.forEach((col, index) => {
-            for (const [key, words] of Object.entries(keywords)) {
-                if (words.some(w => col.includes(w))) {
-                    map[key] = index;
-                    foundCount++;
-                    break;
-                }
-            }
-        });
-        return foundCount >= 2 ? map : null; 
-    }
-
     function renderImportTable(initialErrorState) {
         const tb = document.getElementById('previewTableBody'); tb.innerHTML = ""; let stillHasError = false;
         usersToImport.forEach((u, idx) => {
@@ -800,43 +880,6 @@
         });
     }
 
-    // --- 7. Activity Functions ---
-    function loadActivityList(f=false){
-        const tb=document.getElementById('activityListBody');
-        if(f || !cachedActivities || cachedActivities.length===0){
-            tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';
-            callApi({action:"getActivities"},res=>{ 
-                cachedActivities = res.activities || []; 
-                updateYearFilter(cachedActivities); 
-                filterActivities(); 
-            });
-        }else{ 
-            filterActivities(); 
-        }
-    }
-    
-    function filterActivities(){
-        const tb=document.getElementById('activityListBody');
-        const yv=document.getElementById('yearFilter').value;
-        const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();
-        let f=cachedActivities.filter(a=>{
-            let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();
-            return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));
-        });
-        f.sort((a,b)=>new Date(b.date)-new Date(a.date));
-        tb.innerHTML="";
-        if(f.length===0){
-            tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';
-            return;
-        }
-        f.forEach(a=>{
-            const r=document.createElement('tr');
-            let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
-            r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
-            tb.appendChild(r);
-        });
-    }
-
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
     function formatDateString(str) { if(!str) return ""; str = str.trim(); if(/^\d{8}$/.test(str)) { return `${str.substring(0,4)}-${str.substring(4,6)}-${str.substring(6,8)}`; } return str; }
@@ -855,38 +898,16 @@
         });
         if(newActs.length === 0) return alert("請至少填寫一列完整的活動資料 (日期與名稱必填)");
         document.getElementById('loading').style.display='flex';
-        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { 
-            document.getElementById('loading').style.display='none';
-            alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); 
-        });
+        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { document.getElementById('loading').style.display='none'; alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); });
     }
     
     function openEditModal(act){document.getElementById('editDate').value=act.date;document.getElementById('editEndDate').value=act.endDate||act.date;document.getElementById('editName').value=act.name;document.getElementById('editCategory').value=act.category;document.getElementById('editMethod').value=act.method||"";document.getElementById('editOutcome').value=act.outcome||"";document.getElementById('editOriginalName').value=act.name;document.getElementById('editOriginalDate').value=act.date;editModal.show();}
     function submitEditActivity(){const nd={date:document.getElementById('editDate').value,endDate:document.getElementById('editEndDate').value,name:document.getElementById('editName').value,category:document.getElementById('editCategory').value,method:document.getElementById('editMethod').value,outcome:document.getElementById('editOutcome').value};if(!nd.name||!nd.date)return alert("必填");callApi({action:"updateActivity",originalName:document.getElementById('editOriginalName').value,originalDate:document.getElementById('editOriginalDate').value,newData:nd},()=>{alert("更新成功");editModal.hide();loadActivityList(true);});}
     function deleteActivity(act){if(!confirm("確定刪除?"))return;callApi({action:"deleteActivity",name:act.name,date:act.date},()=>{alert("已刪除");loadActivityList(true);});}
     function selectActivity(act){document.getElementById('activityName').value=act.name;document.getElementById('activityDate').value=act.date;document.getElementById('activityCategory').value=act.category;document.getElementById('currentActName').innerText=act.name;document.getElementById('displayDate').innerText=act.date;document.getElementById('displayCategory').innerText=act.category;document.getElementById('displayCategory').className=`badge ${getCategoryClass(act.category)}`;document.getElementById('attendanceInput').value="";document.getElementById('activityResultArea').style.display='none';document.getElementById('localPreviewBox').style.display='none';document.getElementById('btnStats').style.display='none';new bootstrap.Tab(document.getElementById('pills-activity-tab')).show();}
-    
-    function parseAttendance() {
-        const text = document.getElementById('attendanceInput').value;
-        tempParsedList = [];
-        const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g;
-        let match;
-        while ((match = regex.exec(text)) !== null) {
-            if (match[0].length > 1) tempParsedList.push(match[0]);
-        }
-        if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。");
-        document.getElementById('localCount').innerText = tempParsedList.length;
-        document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : "");
-        document.getElementById('localPreviewBox').style.display = 'block';
-        document.getElementById('btnStats').style.display = 'inline-block';
-    }
-
-    function processActivity(){
-        if(!document.getElementById('activityName').value) return alert("未選活動");
-        if(tempParsedList.length === 0) return alert("請先執行「解析名單」");
-        calculateStatsLocal();
-    }
-
+    function parseAttendance() {const text = document.getElementById('attendanceInput').value; tempParsedList = []; const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g; let match; while ((match = regex.exec(text)) !== null) { if (match[0].length > 1) tempParsedList.push(match[0]); } if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。"); document.getElementById('localCount').innerText = tempParsedList.length; document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : ""); document.getElementById('localPreviewBox').style.display = 'block'; document.getElementById('btnStats').style.display = 'inline-block';}
+    function processActivity(){if(!document.getElementById('activityName').value) return alert("未選活動"); if(tempParsedList.length === 0) return alert("請先執行「解析名單」"); calculateStatsLocal();}
+    function calculateStatsLocal() {let details = [], stats = { total: 0, roles: {} }; let processedIds = {}; tempParsedList.forEach(key => { let u = CACHED_USER_MAP[key]; if (u) { let uid = u.id || u.name; if (!processedIds[uid]) { details.push(u); processedIds[uid] = true; stats.roles[u.role] = (stats.roles[u.role] || 0) + 1; } } }); stats.total = details.length; validActivityIds = details.map(u => u.id || u.name); document.getElementById('activityResultArea').style.display='block'; document.getElementById('actTotal').innerText = stats.total; const p=document.getElementById('previewRoleStats'); p.innerHTML=""; for(let k in stats.roles) p.innerHTML+=`<span class="badge ${getRoleClass(k)} fs-6 me-1">${k}:${stats.roles[k]}</span>`;}
     function saveActivity(){const n=document.getElementById('activityName').value;if(!n)return alert("錯誤"); callApi({action:"saveData",activityName:n,activityCategory:document.getElementById('activityCategory').value,activityDate:document.getElementById('activityDate').value,userIds:validActivityIds},()=>{alert("已儲存");location.reload();});}
 
     function callApi(payload,cb,silent=false){
