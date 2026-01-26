@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v24.1 (Fix Activity Filter)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 17:05</div>
+        <div>版本：v25.0 (Final Fix)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 18:00</div>
     </div>
 </div>
 
@@ -152,7 +152,7 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
+            <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
@@ -164,11 +164,7 @@
                             <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號... (即打即找)" oninput="filterUserList()">
                             <button class="btn btn-primary fw-bold" onclick="filterUserList()">查詢</button>
                         </div>
-
-                        <!-- 身分篩選按鈕 -->
-                        <div class="role-filter-group mb-3 text-center" id="roleFilterContainer">
-                            <!-- JS will populate buttons here -->
-                        </div>
+                        <div class="role-filter-group mb-3 text-center" id="roleFilterContainer"></div>
 
                         <div id="searchResultArea">
                             <div class="table-responsive" style="min-height: 200px;">
@@ -189,8 +185,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -339,7 +333,7 @@
                                         <tr class="report-header-group"><th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th><th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th><th colspan="3">總計</th></tr>
                                         <tr class="report-header-group"><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>小計</th></tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="17" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;">
                                     <thead id="disabilityHead" class="sticky-top"></thead>
@@ -395,9 +389,21 @@
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
         addBatchRow();
+        updateTime();
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
+    
+    function updateTime() {
+        const now = new Date();
+        const str = now.getFullYear() + "-" +
+            String(now.getMonth()+1).padStart(2, '0') + "-" +
+            String(now.getDate()).padStart(2, '0') + " " +
+            String(now.getHours()).padStart(2, '0') + ":" +
+            String(now.getMinutes()).padStart(2, '0');
+        const el = document.getElementById('updateTimeDisplay');
+        if(el) el.innerText = "更新時間：" + str;
+    }
 
     // --- 4. Login & System Load ---
     function performLogin(e) {
@@ -577,42 +583,12 @@
         document.getElementById('loading').style.display='flex';
         callApi({action:"importUsers", users:[u]}, () => { btn.disabled = false; userEditModal.hide(); loadSystemData(); alert("資料更新成功！"); });
     }
-    
-    // [IMPROVED] Import Logic with Header Detection
-    function detectHeaderMapping(line) {
-        if (!line) return null;
-        const cols = line.split("\t").map(s => s.trim().toLowerCase());
-        const map = {};
-        let foundCount = 0;
-        const keywords = {
-            id: ['id', '學號', '編號'],
-            name: ['姓名', '名字', 'name'],
-            role: ['身分', '身份', '職務', 'role'],
-            gender: ['性別', 'gender'],
-            dept: ['科系', '單位', '系所', 'dept'],
-            disability: ['特教類別', '障別', 'disability']
-        };
-        cols.forEach((col, index) => {
-            for (const [key, words] of Object.entries(keywords)) {
-                if (words.some(w => col.includes(w))) {
-                    map[key] = index;
-                    foundCount++;
-                    break;
-                }
-            }
-        });
-        return foundCount >= 2 ? map : null; 
-    }
-
     function previewImport(){
-        const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); 
-        const lines=raw.split("\n").filter(l=>l.trim()); 
-        usersToImport=[]; 
-        let hasError = false;
+        const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); const lines=raw.split("\n"); usersToImport=[]; let hasError = false;
         
         const headerMap = detectHeaderMapping(lines[0]);
         const startRow = headerMap ? 1 : 0;
-        
+
         for(let i=startRow; i<lines.length; i++) {
             const c=lines[i].split("\t").map(s=>s.trim());
             let u = { id: "", name: "", role: "", gender: "", dept: "", disability: "" };
@@ -625,7 +601,6 @@
                 if(headerMap.hasOwnProperty('dept')) u.dept = c[headerMap.dept] || "";
                 if(headerMap.hasOwnProperty('disability')) u.disability = c[headerMap.disability] || "";
             } else {
-                // Fallback: Smart Guess
                 if(c.length>=2 && (c[0]||c[1])){
                     let remaining = [];
                     c.forEach(val => {
@@ -666,6 +641,32 @@
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('importCollapse').classList.remove('show');
     }
     
+    // [IMPROVED] Import Logic with Header Detection
+    function detectHeaderMapping(line) {
+        if (!line) return null;
+        const cols = line.split("\t").map(s => s.trim().toLowerCase());
+        const map = {};
+        let foundCount = 0;
+        const keywords = {
+            id: ['id', '學號', '編號'],
+            name: ['姓名', '名字', 'name'],
+            role: ['身分', '身份', '職務', 'role'],
+            gender: ['性別', 'gender'],
+            dept: ['科系', '單位', '系所', 'dept'],
+            disability: ['特教類別', '障別', 'disability']
+        };
+        cols.forEach((col, index) => {
+            for (const [key, words] of Object.entries(keywords)) {
+                if (words.some(w => col.includes(w))) {
+                    map[key] = index;
+                    foundCount++;
+                    break;
+                }
+            }
+        });
+        return foundCount >= 2 ? map : null; 
+    }
+
     function renderImportTable(initialErrorState) {
         const tb = document.getElementById('previewTableBody'); tb.innerHTML = ""; let stillHasError = false;
         usersToImport.forEach((u, idx) => {
@@ -744,9 +745,9 @@
         const semester = document.getElementById('rptSemesterSelect').value;
         const filter = { mode: currentReportFilterMode, year: year, semester: semester };
         const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="17" class="text-center py-5 text-muted">載入中...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="text-center py-5 text-muted">載入中...</td></tr>';
         callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="17" class="text-center py-5">無資料</td></tr>';return;}
+            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="16" class="text-center py-5">無資料</td></tr>';return;}
             const rows = res.report.map(r => {
                 const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
                 return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td></tr>`;
@@ -799,7 +800,7 @@
         });
     }
 
-    // --- 7. Activity Functions (FIXED) ---
+    // --- 7. Activity Functions ---
     function loadActivityList(f=false){
         const tb=document.getElementById('activityListBody');
         if(f || !cachedActivities || cachedActivities.length===0){
@@ -854,15 +855,38 @@
         });
         if(newActs.length === 0) return alert("請至少填寫一列完整的活動資料 (日期與名稱必填)");
         document.getElementById('loading').style.display='flex';
-        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { document.getElementById('loading').style.display='none'; alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); });
+        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { 
+            document.getElementById('loading').style.display='none';
+            alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); 
+        });
     }
     
     function openEditModal(act){document.getElementById('editDate').value=act.date;document.getElementById('editEndDate').value=act.endDate||act.date;document.getElementById('editName').value=act.name;document.getElementById('editCategory').value=act.category;document.getElementById('editMethod').value=act.method||"";document.getElementById('editOutcome').value=act.outcome||"";document.getElementById('editOriginalName').value=act.name;document.getElementById('editOriginalDate').value=act.date;editModal.show();}
     function submitEditActivity(){const nd={date:document.getElementById('editDate').value,endDate:document.getElementById('editEndDate').value,name:document.getElementById('editName').value,category:document.getElementById('editCategory').value,method:document.getElementById('editMethod').value,outcome:document.getElementById('editOutcome').value};if(!nd.name||!nd.date)return alert("必填");callApi({action:"updateActivity",originalName:document.getElementById('editOriginalName').value,originalDate:document.getElementById('editOriginalDate').value,newData:nd},()=>{alert("更新成功");editModal.hide();loadActivityList(true);});}
     function deleteActivity(act){if(!confirm("確定刪除?"))return;callApi({action:"deleteActivity",name:act.name,date:act.date},()=>{alert("已刪除");loadActivityList(true);});}
     function selectActivity(act){document.getElementById('activityName').value=act.name;document.getElementById('activityDate').value=act.date;document.getElementById('activityCategory').value=act.category;document.getElementById('currentActName').innerText=act.name;document.getElementById('displayDate').innerText=act.date;document.getElementById('displayCategory').innerText=act.category;document.getElementById('displayCategory').className=`badge ${getCategoryClass(act.category)}`;document.getElementById('attendanceInput').value="";document.getElementById('activityResultArea').style.display='none';document.getElementById('localPreviewBox').style.display='none';document.getElementById('btnStats').style.display='none';new bootstrap.Tab(document.getElementById('pills-activity-tab')).show();}
-    function parseAttendance() {const text = document.getElementById('attendanceInput').value; tempParsedList = []; const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g; let match; while ((match = regex.exec(text)) !== null) { if (match[0].length > 1) tempParsedList.push(match[0]); } if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。"); document.getElementById('localCount').innerText = tempParsedList.length; document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : ""); document.getElementById('localPreviewBox').style.display = 'block'; document.getElementById('btnStats').style.display = 'inline-block';}
-    function calculateStatsLocal() {let details = [], stats = { total: 0, roles: {} }; let processedIds = {}; tempParsedList.forEach(key => { let u = CACHED_USER_MAP[key]; if (u) { let uid = u.id || u.name; if (!processedIds[uid]) { details.push(u); processedIds[uid] = true; stats.roles[u.role] = (stats.roles[u.role] || 0) + 1; } } }); stats.total = details.length; validActivityIds = details.map(u => u.id || u.name); document.getElementById('activityResultArea').style.display='block'; document.getElementById('actTotal').innerText = stats.total; const p=document.getElementById('previewRoleStats'); p.innerHTML=""; for(let k in stats.roles) p.innerHTML+=`<span class="badge ${getRoleClass(k)} fs-6 me-1">${k}:${stats.roles[k]}</span>`;}
+    
+    function parseAttendance() {
+        const text = document.getElementById('attendanceInput').value;
+        tempParsedList = [];
+        const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (match[0].length > 1) tempParsedList.push(match[0]);
+        }
+        if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。");
+        document.getElementById('localCount').innerText = tempParsedList.length;
+        document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : "");
+        document.getElementById('localPreviewBox').style.display = 'block';
+        document.getElementById('btnStats').style.display = 'inline-block';
+    }
+
+    function processActivity(){
+        if(!document.getElementById('activityName').value) return alert("未選活動");
+        if(tempParsedList.length === 0) return alert("請先執行「解析名單」");
+        calculateStatsLocal();
+    }
+
     function saveActivity(){const n=document.getElementById('activityName').value;if(!n)return alert("錯誤"); callApi({action:"saveData",activityName:n,activityCategory:document.getElementById('activityCategory').value,activityDate:document.getElementById('activityDate').value,userIds:validActivityIds},()=>{alert("已儲存");location.reload();});}
 
     function callApi(payload,cb,silent=false){
