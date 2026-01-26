@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v24.0 (Clean & Stable)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 16:00</div>
+        <div>版本：v24.1 (Fix Activity Filter)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 17:05</div>
     </div>
 </div>
 
@@ -339,7 +339,7 @@
                                         <tr class="report-header-group"><th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th><th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th><th colspan="3">總計</th></tr>
                                         <tr class="report-header-group"><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>小計</th></tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="17" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;">
                                     <thead id="disabilityHead" class="sticky-top"></thead>
@@ -361,7 +361,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- 1. Global Helpers ---
+    // --- 1. Global Helpers (MUST BE AT TOP) ---
     function getRoleClass(r){if(!r)return "bg-secondary";r=r.trim();if(r==="特教生")return "bg-danger";if(r==="教師")return "bg-warning text-dark";if(r.includes("職員"))return "bg-success";if(r==="工讀生")return "bg-primary";if(r==="輔導人員")return "bg-warning text-dark";if(r==="家長")return "bg-secondary";if(r==="校外人員")return "bg-purple";return "bg-secondary";}
     function getCategoryClass(c){if(!c)return "bg-secondary";if(c.includes("課業"))return "bg-success";if(c.includes("職涯"))return "bg-primary";if(c.includes("人際"))return "bg-warning text-dark";if(c.includes("特教"))return "bg-purple";if(c.includes("ISP")||c.includes("ITP")||c.includes("會議"))return "bg-dark";return "bg-secondary";}
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
@@ -445,7 +445,6 @@
                     
                     populateDropdowns();
                     preloadActivities();
-                    
                     setupRoleFilters();
                     filterUserList(); 
                     showMainApp();
@@ -745,9 +744,9 @@
         const semester = document.getElementById('rptSemesterSelect').value;
         const filter = { mode: currentReportFilterMode, year: year, semester: semester };
         const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="16" class="text-center py-5 text-muted">載入中...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="17" class="text-center py-5 text-muted">載入中...</td></tr>';
         callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="16" class="text-center py-5">無資料</td></tr>';return;}
+            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="17" class="text-center py-5">無資料</td></tr>';return;}
             const rows = res.report.map(r => {
                 const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
                 return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td></tr>`;
@@ -800,9 +799,43 @@
         });
     }
 
-    // --- 7. Activity Functions ---
-    function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
-    function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;tb.appendChild(r);});}
+    // --- 7. Activity Functions (FIXED) ---
+    function loadActivityList(f=false){
+        const tb=document.getElementById('activityListBody');
+        if(f || !cachedActivities || cachedActivities.length===0){
+            tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';
+            callApi({action:"getActivities"},res=>{ 
+                cachedActivities = res.activities || []; 
+                updateYearFilter(cachedActivities); 
+                filterActivities(); 
+            });
+        }else{ 
+            filterActivities(); 
+        }
+    }
+    
+    function filterActivities(){
+        const tb=document.getElementById('activityListBody');
+        const yv=document.getElementById('yearFilter').value;
+        const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();
+        let f=cachedActivities.filter(a=>{
+            let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();
+            return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));
+        });
+        f.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        tb.innerHTML="";
+        if(f.length===0){
+            tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';
+            return;
+        }
+        f.forEach(a=>{
+            const r=document.createElement('tr');
+            let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
+            r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
+            tb.appendChild(r);
+        });
+    }
+
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
     function formatDateString(str) { if(!str) return ""; str = str.trim(); if(/^\d{8}$/.test(str)) { return `${str.substring(0,4)}-${str.substring(4,6)}-${str.substring(6,8)}`; } return str; }
@@ -823,6 +856,7 @@
         document.getElementById('loading').style.display='flex';
         callApi({action: "batchCreateActivities", activities: newActs}, (res) => { document.getElementById('loading').style.display='none'; alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); });
     }
+    
     function openEditModal(act){document.getElementById('editDate').value=act.date;document.getElementById('editEndDate').value=act.endDate||act.date;document.getElementById('editName').value=act.name;document.getElementById('editCategory').value=act.category;document.getElementById('editMethod').value=act.method||"";document.getElementById('editOutcome').value=act.outcome||"";document.getElementById('editOriginalName').value=act.name;document.getElementById('editOriginalDate').value=act.date;editModal.show();}
     function submitEditActivity(){const nd={date:document.getElementById('editDate').value,endDate:document.getElementById('editEndDate').value,name:document.getElementById('editName').value,category:document.getElementById('editCategory').value,method:document.getElementById('editMethod').value,outcome:document.getElementById('editOutcome').value};if(!nd.name||!nd.date)return alert("必填");callApi({action:"updateActivity",originalName:document.getElementById('editOriginalName').value,originalDate:document.getElementById('editOriginalDate').value,newData:nd},()=>{alert("更新成功");editModal.hide();loadActivityList(true);});}
     function deleteActivity(act){if(!confirm("確定刪除?"))return;callApi({action:"deleteActivity",name:act.name,date:act.date},()=>{alert("已刪除");loadActivityList(true);});}
