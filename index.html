@@ -48,7 +48,7 @@
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 40px; font-size: 0.8em; }
         
-        /* [Fixed] Vertical Header for Disabilities (Removed Rotate) */
+        /* Vertical Header */
         .vertical-header {
             writing-mode: vertical-rl;
             text-orientation: mixed;
@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v36.0 (Stable Fix)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 15:05</div>
+        <div>版本：v37.0 (Final Stable)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 15:30</div>
     </div>
 </div>
 
@@ -152,7 +152,7 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
+            <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
@@ -185,8 +185,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -920,9 +918,9 @@
             // Ensure we use the global variable which is populated by loadSystemData
             const displayDisabilities = (VALID_DISABILITIES && VALID_DISABILITIES.length > 0) ? VALID_DISABILITIES : ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
             
-            let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`;
+            let hRow = `<tr><th class="align-middle">學年</th><th class="align-middle">學期</th><th class="align-middle">活動主題</th><th class="align-middle">類別</th><th class="align-middle">起</th><th class="align-middle">迄</th>`;
             displayDisabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
-            hRow += `<th rowspan="2" class="disability-total">總計</th></tr>`;
+            hRow += `<th class="align-middle disability-total">總計</th></tr>`;
             thead.innerHTML = hRow;
 
             let colTotals = {}; displayDisabilities.forEach(d => colTotals[d] = 0);
@@ -955,6 +953,7 @@
     // [MODIFIED] Added 'list-ul' button for Manage Participants
     r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
+    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
