@@ -69,6 +69,7 @@
             font-size: 1.5rem;
             font-weight: bold;
             transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
         }
         .report-menu-btn:hover {
             transform: translateY(-5px);
@@ -110,8 +111,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v31.0 (Smart Append)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 13:58</div>
+        <div>版本：v34.0 (Participant Manager)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 20:00</div>
     </div>
 </div>
 
@@ -152,99 +153,30 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
+            <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
+                <!-- User UI from v33.1 (Keeping it short here but fully included in logic) -->
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
                         <h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-users me-2"></i>人員管理與查詢</h5>
-                        
-                        <!-- 搜尋與篩選 -->
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
-                            <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號... (即打即找)" oninput="filterUserList()">
+                            <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號..." oninput="filterUserList()">
                             <button class="btn btn-primary fw-bold" onclick="filterUserList()">查詢</button>
                         </div>
-
-                        <!-- 身分篩選按鈕 -->
-                        <div class="role-filter-group mb-3 text-center" id="roleFilterContainer">
-                            <!-- JS will populate buttons here -->
-                        </div>
-
+                        <div class="role-filter-group mb-3 text-center" id="roleFilterContainer"></div>
                         <div id="searchResultArea">
                             <div class="table-responsive" style="min-height: 200px;">
-                                <table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle table-hover">
-                                    <thead class="table-light sticky-top">
-                                        <tr>
-                                            <th>ID (學號)</th>
-                                            <th>姓名</th>
-                                            <th>特教類別</th>
-                                            <th>性別</th>
-                                            <th>科系/單位</th>
-                                            <th>身分</th>
-                                            <th style="width: 100px;">操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="searchResultBody">
-                                        <tr><td colspan="7" class="text-muted py-3">載入中...</td></tr>
-                                    </tbody>
-                                </table>
+                                <table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle table-hover"><thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>特教類別</th><th>性別</th><th>科系/單位</th><th>身分</th><th style="width: 100px;">操作</th></tr></thead><tbody id="searchResultBody"></tbody></table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
-                            <div class="pagination-container">
-                                <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
-                                <div class="btn-group btn-group-sm" id="paginationBtns">
-                                    <button class="btn btn-outline-secondary" onclick="changePage(-1)" id="btnPrevPage" disabled><i class="fas fa-chevron-left"></i></button>
-                                    <button class="btn btn-outline-secondary disabled" id="pageIndicator" style="width: 80px;">1 / 1</button>
-                                    <button class="btn btn-outline-secondary" onclick="changePage(1)" id="btnNextPage" disabled><i class="fas fa-chevron-right"></i></button>
-                                </div>
-                            </div>
+                            <div class="pagination-container"><div class="page-info" id="paginationInfo"></div><div class="btn-group btn-group-sm" id="paginationBtns"><button class="btn btn-outline-secondary" onclick="changePage(-1)" id="btnPrevPage"><i class="fas fa-chevron-left"></i></button><button class="btn btn-outline-secondary disabled" id="pageIndicator"></button><button class="btn btn-outline-secondary" onclick="changePage(1)" id="btnNextPage"><i class="fas fa-chevron-right"></i></button></div></div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- 匯入區塊 -->
-                <div class="card border-info border-start border-4">
-                    <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse" style="cursor: pointer;">
-                        <h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6>
-                    </div>
-                    <div id="importCollapse" class="collapse">
-                        <div class="card-body">
-                            <div class="alert alert-light border small">
-                                請從 Excel 複製貼上：<strong>ID | 姓名 | 身分 | 性別 | 科系 | 特教類別</strong><br>
-                                <span class="text-danger">* 系統自動智慧修正欄位。若 ID 重複，將更新該員資料。</span>
-                            </div>
-                            <textarea id="importInput" class="form-control font-monospace" rows="4" placeholder="1101001	王小明	特教生	男	多媒體系	自閉症"></textarea>
-                            <div class="text-end mt-2 gap-2 d-flex justify-content-end">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button>
-                                <button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 匯入預覽 -->
-                <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between">
-                        <span>預覽與檢核 (可直接點選修正)</span>
-                        <span class="badge bg-white text-primary" id="previewCount">0</span>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="alert alert-danger m-2" id="importErrorMsg" style="display:none;">
-                            <strong><i class="fas fa-exclamation-triangle"></i> 資料有誤！</strong> 請點選下方紅色欄位進行補填。
-                        </div>
-                        <div class="table-responsive" style="max-height: 400px;">
-                            <table class="table table-sm table-striped mb-0 text-center small align-middle">
-                                <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別 (點擊切換)</th><th>科系/單位</th><th>特教類別</th></tr></thead>
-                                <tbody id="previewTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between">
-                        <button onclick="cancelImport()" class="btn btn-secondary">取消</button>
-                        <button onclick="submitImport()" id="btnSubmitImport" class="btn btn-success fw-bold">確認寫入資料庫</button>
-                    </div>
-                </div>
+                <!-- User Batch & Import UI (Keeping them) -->
+                <div class="card border-info border-start border-4 mb-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#userBatchCreateCollapse" style="cursor: pointer;"><h6 class="m-0 fw-bold text-dark"><i class="fas fa-user-plus me-2"></i>手動/批次建立人員</h6></div><div id="userBatchCreateCollapse" class="collapse"><div class="card-body"><div class="table-responsive mb-2"><table class="table table-bordered table-sm align-middle"><thead class="table-light text-center"><tr><th style="width:120px;">ID</th><th>姓名</th><th style="width:100px;">身分</th><th style="width:80px;">性別</th><th>科系</th><th style="width:140px;">障別</th><th style="width:50px;"></th></tr></thead><tbody id="userBatchTableBody"></tbody></table></div><div class="d-flex justify-content-between"><button class="btn btn-outline-secondary btn-sm" onclick="addUserBatchRow()">新增</button><button class="btn btn-primary btn-sm" onclick="submitUserBatchTable()">預覽</button></div></div></div></div>
+                <div class="card border-info border-start border-4"><div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse" style="cursor: pointer;"><h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員</h6></div><div id="importCollapse" class="collapse"><div class="card-body"><textarea id="importInput" class="form-control font-monospace" rows="4" placeholder="ID (學號)	姓名	科系/單位	性別	身分"></textarea><div class="text-end mt-2 gap-2 d-flex justify-content-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('importInput').value=''">清空</button><button onclick="previewImport()" class="btn btn-primary fw-bold btn-sm">解析並預覽</button></div></div></div></div>
+                <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3"><div class="card-header bg-primary text-white d-flex justify-content-between"><span>預覽檢核</span><span class="badge bg-white text-primary" id="previewCount">0</span></div><div class="card-body p-0"><div class="alert alert-danger m-2" id="importErrorMsg" style="display:none;">資料有誤</div><div class="table-responsive" style="max-height: 400px;"><table class="table table-sm table-striped mb-0 text-center small align-middle"><thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>性別</th><th>科系</th><th>特教類別</th></tr></thead><tbody id="previewTableBody"></tbody></table></div></div><div class="card-footer d-flex justify-content-between"><button onclick="cancelImport()" class="btn btn-secondary">取消</button><button onclick="submitImport()" id="btnSubmitImport" class="btn btn-success fw-bold">確認寫入</button></div></div>
             </div>
 
             <!-- Tab 2: Activity Manager -->
@@ -284,7 +216,7 @@
                     </div>
                 </div>
                 <!-- 活動列表區塊 -->
-                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="yearMode" id="modeCalendar" autocomplete="off" checked onchange="changeYearMode('calendar')"><label class="btn btn-outline-light" for="modeCalendar">📅 一般年度</label><input type="radio" class="btn-check" name="yearMode" id="modeAcademic" autocomplete="off" onchange="changeYearMode('academic')"><label class="btn btn-outline-light" for="modeAcademic">🎓 學年度</label></div></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top"><tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th style="width: 8%" class="text-secondary">年度/學期</th><th>活動名稱</th><th class="text-end" style="width: 140px;">操作</th></tr></thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
+                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="yearMode" id="modeCalendar" autocomplete="off" checked onchange="changeYearMode('calendar')"><label class="btn btn-outline-light" for="modeCalendar">📅 一般年度</label><input type="radio" class="btn-check" name="yearMode" id="modeAcademic" autocomplete="off" onchange="changeYearMode('academic')"><label class="btn btn-outline-light" for="modeAcademic">🎓 學年度</label></div></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top"><tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th style="width: 8%" class="text-secondary">年度/學期</th><th>活動名稱</th><th class="text-end" style="width: 160px;">操作</th></tr></thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
             </div>
 
             <!-- Tab 3: Sign In -->
@@ -292,31 +224,31 @@
                 <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span></div></div>
                 <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
                 <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
-                
-                <!-- [NEW] Unknown User Detection & Fix -->
                 <div id="unknownUserBox" class="alert alert-danger mt-3 shadow-sm border-danger" style="display:none;">
                     <h6 class="alert-heading fw-bold mb-2"><i class="fas fa-exclamation-circle me-1"></i> 偵測到未建檔人員！</h6>
                     <div class="small text-muted mb-2">以下名單不在資料庫中，無法計入統計。請點擊「前往補建檔」快速新增。</div>
                     <div id="unknownUserList" class="p-2 bg-white border rounded font-monospace small mb-3 text-danger"></div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-danger" onclick="copyUnknowns()"><i class="fas fa-copy me-1"></i>複製名單</button>
-                        <button class="btn btn-sm btn-danger fw-bold" onclick="goToUserTabWithData()"><i class="fas fa-user-plus me-1"></i>前往補建檔</button>
-                    </div>
+                    <div class="d-flex gap-2"><button class="btn btn-sm btn-outline-danger" onclick="copyUnknowns()"><i class="fas fa-copy me-1"></i>複製名單</button><button class="btn btn-sm btn-danger fw-bold" onclick="goToUserTabWithData()"><i class="fas fa-user-plus me-1"></i>前往補建檔</button></div>
                 </div>
-
                 <div class="card border-success border-2 mt-4"><div class="card-body text-center"><h5 class="text-success fw-bold mb-3">統計完成，確認無誤？</h5><button onclick="saveActivity()" class="btn btn-success btn-lg w-50 fw-bold shadow"><i class="fas fa-save me-2"></i>4. 確認並儲存</button></div></div></div>
             </div>
 
             <!-- Tab 4: Report -->
             <div class="tab-pane fade" id="pills-report">
                 <div class="card shadow-sm"><div class="card-header bg-success text-white"><div class="d-flex flex-wrap justify-content-between align-items-center gap-2"><div class="d-flex align-items-center gap-3"><h6 class="m-0 fw-bold text-nowrap"><i class="fas fa-table me-2"></i>成果報表</h6><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="reportType" id="rptBasic" autocomplete="off" checked onchange="switchReportType('basic')"><label class="btn btn-outline-light" for="rptBasic">校務基本資料庫</label><input type="radio" class="btn-check" name="reportType" id="rptCareer" autocomplete="off" onchange="switchReportType('career')"><label class="btn btn-outline-light" for="rptCareer">活動障別統計</label></div></div><div class="d-flex align-items-center gap-2 flex-wrap">
-                    <!-- Merge Checkbox -->
-                    <div class="form-check form-switch me-3" id="mergeControl" style="display:none;">
-                        <input class="form-check-input" type="checkbox" id="mergeByNameCheck" onchange="loadDisabilityReport()">
-                        <label class="form-check-label text-white fw-bold small" for="mergeByNameCheck">🔀 合併同名活動</label>
-                    </div>
-                    <select id="rptCategoryFilter" class="form-select form-select-sm text-primary fw-bold" style="display:none; width:auto;" onchange="loadDisabilityReport()"><option value="all">所有類別</option></select><div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="rptYearMode" id="rptModeCalendar" autocomplete="off" checked onchange="changeReportFilterMode('calendar')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeCalendar">📅 日曆年</label><input type="radio" class="btn-check" name="rptYearMode" id="rptModeAcademic" autocomplete="off" onchange="changeReportFilterMode('academic')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeAcademic">🎓 學年</label></div><select id="rptYearSelect" class="form-select form-select-sm" style="width: auto;"><option value="all">全部年度</option></select><select id="rptSemesterSelect" class="form-select form-select-sm" style="width: auto; display:none;"><option value="all">全學年</option><option value="1">上學期</option><option value="2">下學期</option></select><button class="btn btn-light btn-sm fw-bold" onclick="loadReportData()"><i class="fas fa-sync-alt"></i> 載入</button><button class="btn btn-warning btn-sm fw-bold" onclick="downloadCSV()"><i class="fas fa-file-download me-1"></i> 下載CSV</button>
-                </div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 600px;"><table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic"><thead class="sticky-top"><tr class="report-header-group"><th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th><th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th><th colspan="3">總計</th></tr><tr class="report-header-group"><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>小計</th></tr></thead><tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody></table><table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;"><thead id="disabilityHead"></thead><tbody id="disabilityBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody></table></div></div></div>
+                    <div class="form-check form-switch me-3" id="mergeControl" style="display:none;"><input class="form-check-input" type="checkbox" id="mergeByNameCheck" onchange="loadDisabilityReport()"><label class="form-check-label text-white fw-bold small" for="mergeByNameCheck">🔀 合併同名活動</label></div>
+                    <select id="rptCategoryFilter" class="form-select form-select-sm text-primary fw-bold" style="display:none; width:auto;" onchange="loadDisabilityReport()"><option value="all">所有類別</option></select>
+                    <div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="rptYearMode" id="rptModeCalendar" autocomplete="off" checked onchange="changeReportFilterMode('calendar')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeCalendar">📅 日曆年</label><input type="radio" class="btn-check" name="rptYearMode" id="rptModeAcademic" autocomplete="off" onchange="changeReportFilterMode('academic')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeAcademic">🎓 學年</label></div>
+                    <select id="rptYearSelect" class="form-select form-select-sm" style="width: auto;"><option value="all">全部年度</option></select>
+                    <select id="rptSemesterSelect" class="form-select form-select-sm" style="width: auto; display:none;"><option value="all">全學年</option><option value="1">上學期</option><option value="2">下學期</option></select>
+                    <button class="btn btn-light btn-sm fw-bold" onclick="loadSelectedReport()"><i class="fas fa-sync-alt"></i> 載入</button>
+                    <button class="btn btn-warning btn-sm fw-bold" onclick="downloadCSV()"><i class="fas fa-file-download me-1"></i> 下載CSV</button>
+                </div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 600px;">
+                    <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
+                        <thead class="sticky-top"><tr class="report-header-group"><th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th><th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th><th colspan="3">總計</th></tr><tr class="report-header-group"><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>小計</th></tr></thead><tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                    </table>
+                    <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;"><thead id="disabilityHead" class="sticky-top"></thead><tbody id="disabilityBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody></table>
+                </div></div></div>
             </div>
         </div>
     </div>
@@ -326,6 +258,34 @@
 <div class="modal fade" id="editActivityModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">編輯活動資料</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editOriginalName"><input type="hidden" id="editOriginalDate"><div class="row g-3"><div class="col-md-6"><label class="form-label">開始日期</label><input type="date" id="editDate" class="form-control"></div><div class="col-md-6"><label class="form-label">結束日期</label><input type="date" id="editEndDate" class="form-control"></div><div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"></div><div class="col-12"><label class="form-label">名稱</label><input type="text" id="editName" class="form-control"></div><div class="col-md-6"><label class="form-label">方式</label><input type="text" id="editMethod" class="form-control" placeholder="例：工作坊"></div><div class="col-md-6"><label class="form-label">成效/備註</label><input type="text" id="editOutcome" class="form-control" placeholder="例：滿意度4.5"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditActivity()">儲存</button></div></div></div></div>
 <div class="modal fade" id="editUserModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">編輯人員資料</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label fw-bold">ID (學號/身分證)</label><input type="text" id="editUserId" class="form-control" readonly disabled></div><div class="mb-3"><label class="form-label fw-bold">姓名</label><input type="text" id="editUserName" class="form-control"></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="form-label fw-bold">身分</label><select id="editUserRole" class="form-select"></select></div><div class="col-md-6"><label class="form-label fw-bold">性別</label><select id="editUserGender" class="form-select"><option value="男">男</option><option value="女">女</option></select></div></div><div class="mb-3"><label class="form-label fw-bold">科系/單位</label><input type="text" id="editUserDept" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">特教類別</label><select id="editUserDisability" class="form-select"></select></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditUser()">儲存變更</button></div></div></div></div>
 <div class="modal fade" id="userBatchCreateCollapse" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">手動/批次建立人員</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-light text-center"><tr><th style="width:120px;">ID (學號) <span class="text-danger">*</span></th><th>姓名 <span class="text-danger">*</span></th><th style="width:100px;">身分</th><th style="width:80px;">性別</th><th>科系/單位</th><th style="width:140px;">特教類別</th><th style="width:50px;"></th></tr></thead><tbody id="userBatchTableBody"></tbody></table></div><div class="d-flex justify-content-between"><button class="btn btn-outline-secondary btn-sm" onclick="addUserBatchRow()"><i class="fas fa-plus me-1"></i>新增一列</button><button class="btn btn-primary btn-sm" onclick="submitUserBatchTable()"><i class="fas fa-check-circle me-1"></i>預覽確認</button></div></div></div></div></div>
+
+<!-- NEW Modal: Manage Participants -->
+<div class="modal fade" id="manageParticipantsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-users-cog me-2"></i>活動名單管理</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="partLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">載入名單中...</div></div>
+                <div id="partContent" style="display:none;">
+                    <div class="alert alert-light border small mb-2">
+                        <strong>活動：</strong><span id="manageActName" class="fw-bold"></span><br>
+                        <strong>日期：</strong><span id="manageActDate"></span>
+                    </div>
+                    <input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead>
+                            <tbody id="participantsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <datalist id="modalCategoryOptions"></datalist>
 
@@ -342,7 +302,7 @@
 
     // --- 2. Global Vars ---
     let API_URL = "";
-    let usersToImport=[], validActivityIds=[], editModal, userEditModal, userBatchModal, cachedActivities=[], currentYearMode='calendar';
+    let usersToImport=[], validActivityIds=[], editModal, userEditModal, userBatchModal, partModal, cachedActivities=[], currentYearMode='calendar';
     let currentReportType = 'basic', currentReportFilterMode = 'calendar'; 
     let tempParsedList = [];
     let unknownList = []; 
@@ -366,7 +326,7 @@
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
-        //userBatchModal=new bootstrap.Modal(document.getElementById('userBatchCreateCollapse')); // Removed modal wrapper logic for embedded collapse
+        partModal=new bootstrap.Modal(document.getElementById('manageParticipantsModal'));
         addBatchRow();
         addUserBatchRow(); 
         const savedUrl = localStorage.getItem('gas_api_url_v1');
@@ -384,6 +344,7 @@
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.disabled = true; btnLogin.innerText = "驗證中...";
         
+        // Local Password Check (1234)
         if(pwd !== "1234") {
              btnLogin.disabled = false; btnLogin.innerText = "登入系統";
              return alert("密碼錯誤");
@@ -670,126 +631,13 @@
     function cancelImport() { document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); usersToImport = []; }
     function submitImport(){if(usersToImport.length===0)return; document.getElementById('loading').style.display='flex'; callApi({action:"importUsers",users:usersToImport},()=>{ document.getElementById('loading').style.display='none'; alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
 
-    // --- 6. Report Logic ---
-    function initReportMenu() {
-        document.getElementById('reportMenuContainer').style.display = 'block';
-        document.getElementById('reportContentContainer').style.display = 'none';
-        if (cachedActivities && cachedActivities.length > 0) { updateReportYearSelect(); } 
-        else { callApi({action:"getActivities"}, res => { cachedActivities = res.activities || []; updateReportYearSelect(); }); }
-    }
-    function selectReport(type) {
-        currentReportType = type;
-        document.getElementById('reportMenuContainer').style.display = 'none';
-        document.getElementById('reportContentContainer').style.display = 'block';
-        const basicTbl = document.getElementById('reportTableBasic');
-        const disTbl = document.getElementById('reportTableDisability');
-        const catFilter = document.getElementById('rptCategoryFilter');
-        const mergeControl = document.getElementById('mergeControl');
-        // Reset Views
-        basicTbl.style.display = 'none';
-        disTbl.style.display = 'none';
-        if (type === 'basic') {
-            document.getElementById('reportTitle').innerText = '校務基本資料庫';
-            basicTbl.style.display = 'table';
-            catFilter.style.display = 'none';
-            mergeControl.style.display = 'none';
-            loadReportData();
-        } else {
-            document.getElementById('reportTitle').innerText = '活動障別統計';
-            disTbl.style.display = 'table';
-            catFilter.style.display = 'inline-block';
-            mergeControl.style.display = 'inline-block';
-            loadDisabilityReport();
-        }
-    }
-    function backToReportMenu() {
-        document.getElementById('reportContentContainer').style.display = 'none';
-        document.getElementById('reportMenuContainer').style.display = 'block';
-        document.getElementById('reportTableBodyBasic').innerHTML = '';
-        document.getElementById('disabilityHead').innerHTML = '';
-        document.getElementById('disabilityBody').innerHTML = '';
-    }
-    function loadSelectedReport() { if (currentReportType === 'basic') loadReportData(); else loadDisabilityReport(); }
-    function changeReportFilterMode(mode) {
-        currentReportFilterMode = mode;
-        const semSelect = document.getElementById('rptSemesterSelect');
-        semSelect.style.display = (mode === 'academic') ? 'inline-block' : 'none';
-        updateReportYearSelect(); 
-        loadSelectedReport();
-    }
-    function updateReportYearSelect() {
-        const sel = document.getElementById('rptYearSelect');
-        const years = new Set();
-        if(cachedActivities) { cachedActivities.forEach(a => { if (currentReportFilterMode === 'calendar') { years.add(getCalendarYear(a.date)); } else { years.add(getAcademicYear(a.date).toString()); } }); }
-        const sorted = Array.from(years).sort().reverse();
-        let ty = ''; const today = new Date(); if (currentReportFilterMode === 'calendar') ty = today.getFullYear().toString(); else { const m = today.getMonth() + 1; const y = today.getFullYear(); ty = ((m >= 8) ? (y - 1911) : (y - 1912)).toString(); }
-        sel.innerHTML = '<option value="all">全部年度</option>';
-        sorted.forEach(y => { const lbl = (currentReportFilterMode === 'calendar') ? `${y} 年` : `${y} 學年度`; sel.innerHTML += `<option value="${y}">${lbl}</option>`; });
-        if(sel.dataset.userSelected!=='true') { if(sorted.includes(ty)) sel.value = ty; else if(sorted.length > 0) sel.value = sorted[0]; }
-    }
-    function loadReportData() {
-        const year = document.getElementById('rptYearSelect').value;
-        const semester = document.getElementById('rptSemesterSelect').value;
-        const filter = { mode: currentReportFilterMode, year: year, semester: semester };
-        const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="16" class="text-center py-5 text-muted">載入中...</td></tr>';
-        callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="16" class="text-center py-5">無資料</td></tr>';return;}
-            const rows = res.report.map(r => {
-                const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
-                return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td></tr>`;
-            }).join('');
-            tbody.innerHTML = rows;
-        });
-    }
-    function loadDisabilityReport() {
-        const year = document.getElementById('rptYearSelect').value;
-        const semester = document.getElementById('rptSemesterSelect').value;
-        const categoryFilter = document.getElementById('rptCategoryFilter').value;
-        const merge = document.getElementById('mergeByNameCheck').checked; 
-        const filter = { mode: currentReportFilterMode, year: year, semester: semester };
-        const thead = document.getElementById('disabilityHead');
-        const tbody = document.getElementById('disabilityBody');
-        tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">載入中...</td></tr>';
-        
-        callApi({action:"getMatrixData", filter: filter, mergeByName: merge}, res=>{
-            const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter));
-            if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; }
-            
-            const disabilities = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
-            
-            let hRow = `<tr><th class="align-middle">學年</th><th class="align-middle">學期</th><th class="align-middle">活動主題</th><th class="align-middle">類別</th><th class="align-middle">起</th><th class="align-middle">迄</th>`;
-            disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
-            hRow += `<th class="align-middle disability-total">總計</th></tr>`;
-            thead.innerHTML = hRow;
-
-            let colTotals = {}; disabilities.forEach(d => colTotals[d] = 0);
-            let grandTotal = 0;
-
-            let bHtml = activities.map(act => {
-                const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} };
-                let rowSum = 0; let cellsHtml = "";
-                disabilities.forEach(d => {
-                    const count = stat.details[d] || 0;
-                    rowSum += count; colTotals[d] += count;
-                    const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light";
-                    cellsHtml += `<td class="${style}">${count}</td>`;
-                });
-                grandTotal += rowSum;
-                const semesterText = act.semester == 1 ? "上" : "下";
-                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`;
-            }).join('');
-            
-            let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`;
-            disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
-            footerHtml += `<td>${grandTotal}</td></tr>`;
-            tbody.innerHTML = bHtml + footerHtml;
-        });
-    }
-
     // --- 7. Activity Functions ---
     function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
-    function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-edit"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;tb.appendChild(r);});}
+    function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
+    // [MODIFIED] Added 'list-ul' button for Manage Participants
+    r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td>${dy}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
+    tb.appendChild(r);});}
+
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
     function formatDateString(str) { if(!str) return ""; str = str.trim(); if(/^\d{8}$/.test(str)) { return `${str.substring(0,4)}-${str.substring(4,6)}-${str.substring(6,8)}`; } return str; }
@@ -845,12 +693,78 @@
         });
     }
 
+    // --- 8. Participant Manager Logic (NEW) ---
+    function openParticipantsModal(act) {
+        // Show loading state
+        partModal.show();
+        document.getElementById('partLoading').style.display = 'block';
+        document.getElementById('partContent').style.display = 'none';
+        
+        document.getElementById('manageActName').innerText = act.name;
+        document.getElementById('manageActDate').innerText = act.date;
+        document.getElementById('manageActNameVal').value = act.name;
+        document.getElementById('manageActDateVal').value = act.date;
+        
+        // Fetch data
+        callApi({action: "getParticipants", activityName: act.name, activityDate: act.date}, (res) => {
+             document.getElementById('partLoading').style.display = 'none';
+             document.getElementById('partContent').style.display = 'block';
+             
+             const tb = document.getElementById('participantsTableBody');
+             tb.innerHTML = '';
+             
+             if (!res.participants || res.participants.length === 0) {
+                 tb.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-3">目前無參與人員紀錄</td></tr>';
+                 return;
+             }
+             
+             res.participants.forEach(p => {
+                 const safeName = p.name.replace(/'/g, "\\'");
+                 tb.innerHTML += `<tr>
+                    <td>${p.id}</td>
+                    <td>${p.name}</td>
+                    <td><span class="badge ${getRoleClass(p.role)}">${p.role}</span></td>
+                    <td>${p.dept}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteParticipantFromActivity('${p.id}', '${safeName}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                 </tr>`;
+             });
+        });
+    }
+    
+    function deleteParticipantFromActivity(studentId, studentName) {
+        if (!confirm(`確定要將 ${studentName} 從此活動名單中移除嗎？`)) return;
+        
+        const actName = document.getElementById('manageActNameVal').value;
+        const actDate = document.getElementById('manageActDateVal').value;
+        
+        // Don't use global loading, keep modal open
+        // Show small feedback
+        
+        callApi({
+            action: "deleteParticipant", 
+            activityName: actName, 
+            activityDate: actDate, 
+            studentId: studentId
+        }, (res) => {
+            if (res.status === 'success') {
+                // Refresh list directly
+                openParticipantsModal({name: actName, date: actDate});
+            } else {
+                alert("刪除失敗：" + res.message);
+            }
+        });
+    }
+
     function callApi(payload,cb,silent=false){
         if(!API_URL) return alert("未連線，請重新登入或檢查設定");
-        if(!silent) document.getElementById('loading').style.display='flex';
+        if(!silent && !payload.action.includes("deleteParticipant")) document.getElementById('loading').style.display='flex';
         fetch(API_URL, {method:'POST', body:JSON.stringify(payload)})
         .then(r=>r.json()).then(d=>{ 
-            if(!silent) document.getElementById('loading').style.display='none'; 
+            if(!silent && !payload.action.includes("deleteParticipant")) document.getElementById('loading').style.display='none'; 
             cb(d); 
         })
         .catch(e=>{ 
