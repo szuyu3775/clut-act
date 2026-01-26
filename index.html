@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v29.0 (No Reload Fix)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 19:40</div>
+        <div>版本：v29.1 (Static Time Fix)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-26 12:40</div>
     </div>
 </div>
 
@@ -152,7 +152,7 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
+            <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
@@ -185,8 +185,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -399,22 +397,10 @@
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
         addBatchRow();
         addUserBatchRow(); 
-        updateTime();
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
     
-    function updateTime() {
-        const now = new Date();
-        const str = now.getFullYear() + "-" +
-            String(now.getMonth()+1).padStart(2, '0') + "-" +
-            String(now.getDate()).padStart(2, '0') + " " +
-            String(now.getHours()).padStart(2, '0') + ":" +
-            String(now.getMinutes()).padStart(2, '0');
-        const el = document.getElementById('updateTimeDisplay');
-        if(el) el.innerText = "更新時間：" + str;
-    }
-
     // --- 4. Login & System Load ---
     function performLogin(e) {
         e.preventDefault();
@@ -426,6 +412,7 @@
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.disabled = true; btnLogin.innerText = "驗證中...";
         
+        // Local Password Check (1234)
         if(pwd !== "1234") {
              btnLogin.disabled = false; btnLogin.innerText = "登入系統";
              return alert("密碼錯誤");
@@ -732,19 +719,40 @@
         });
         if(newActs.length === 0) return alert("請至少填寫一列完整的活動資料 (日期與名稱必填)");
         document.getElementById('loading').style.display='flex';
-        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { document.getElementById('loading').style.display='none'; alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); });
+        callApi({action: "batchCreateActivities", activities: newActs}, (res) => { 
+            document.getElementById('loading').style.display='none';
+            alert(`成功建立 ${res.count} 筆活動！`); clearBatchTable(); loadActivityList(true); 
+        });
     }
     
     function openEditModal(act){document.getElementById('editDate').value=act.date;document.getElementById('editEndDate').value=act.endDate||act.date;document.getElementById('editName').value=act.name;document.getElementById('editCategory').value=act.category;document.getElementById('editMethod').value=act.method||"";document.getElementById('editOutcome').value=act.outcome||"";document.getElementById('editOriginalName').value=act.name;document.getElementById('editOriginalDate').value=act.date;editModal.show();}
     function submitEditActivity(){const nd={date:document.getElementById('editDate').value,endDate:document.getElementById('editEndDate').value,name:document.getElementById('editName').value,category:document.getElementById('editCategory').value,method:document.getElementById('editMethod').value,outcome:document.getElementById('editOutcome').value};if(!nd.name||!nd.date)return alert("必填");callApi({action:"updateActivity",originalName:document.getElementById('editOriginalName').value,originalDate:document.getElementById('editOriginalDate').value,newData:nd},()=>{alert("更新成功");editModal.hide();loadActivityList(true);});}
     function deleteActivity(act){if(!confirm("確定刪除?"))return;callApi({action:"deleteActivity",name:act.name,date:act.date},()=>{alert("已刪除");loadActivityList(true);});}
     function selectActivity(act){document.getElementById('activityName').value=act.name;document.getElementById('activityDate').value=act.date;document.getElementById('activityCategory').value=act.category;document.getElementById('currentActName').innerText=act.name;document.getElementById('displayDate').innerText=act.date;document.getElementById('displayCategory').innerText=act.category;document.getElementById('displayCategory').className=`badge ${getCategoryClass(act.category)}`;document.getElementById('attendanceInput').value="";document.getElementById('activityResultArea').style.display='none';document.getElementById('localPreviewBox').style.display='none';document.getElementById('btnStats').style.display='none';new bootstrap.Tab(document.getElementById('pills-activity-tab')).show();}
-    function parseAttendance() {const text = document.getElementById('attendanceInput').value; tempParsedList = []; const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g; let match; while ((match = regex.exec(text)) !== null) { if (match[0].length > 1) tempParsedList.push(match[0]); } if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。"); document.getElementById('localCount').innerText = tempParsedList.length; document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : ""); document.getElementById('localPreviewBox').style.display = 'block'; document.getElementById('btnStats').style.display = 'inline-block';}
-    function calculateStatsLocal() {let details = [], stats = { total: 0, roles: {} }; let processedIds = {}; unknownList = []; tempParsedList.forEach(key => { let u = CACHED_USER_MAP[key]; if (u) { let uid = u.id || u.name; if (!processedIds[uid]) { details.push(u); processedIds[uid] = true; stats.roles[u.role] = (stats.roles[u.role] || 0) + 1; } } else { if (!unknownList.includes(key)) unknownList.push(key); } }); stats.total = details.length; validActivityIds = details.map(u => u.id || u.name); document.getElementById('activityResultArea').style.display='block'; document.getElementById('actTotal').innerText = stats.total; const p=document.getElementById('previewRoleStats'); p.innerHTML=""; for(let k in stats.roles) p.innerHTML+=`<span class="badge ${getRoleClass(k)} fs-6 me-1">${k}:${stats.roles[k]}</span>`; const unBox=document.getElementById('unknownUserBox'); if(unknownList.length>0){ unBox.style.display='block'; document.getElementById('unknownUserList').innerText=unknownList.join(", "); } else { unBox.style.display='none'; } }
-    function copyUnknowns() { navigator.clipboard.writeText(unknownList.join("\n")).then(() => alert("已複製未建檔名單")); }
-    function goToUserTabWithData() { document.getElementById('pills-users-tab').click(); const importArea = document.getElementById('importInput'); importArea.value = unknownList.join("\n"); importArea.scrollIntoView({behavior: "smooth"}); document.getElementById('importCollapse').classList.add('show'); alert("已將未建檔名單帶入匯入框，請補充資料後執行「解析並預覽」。"); }
+    
+    function parseAttendance() {
+        const text = document.getElementById('attendanceInput').value;
+        tempParsedList = [];
+        const regex = /[a-zA-Z0-9]+|[\u4e00-\u9fa5]+/g;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            if (match[0].length > 1) tempParsedList.push(match[0]);
+        }
+        if(tempParsedList.length === 0) return alert("無法辨識有效名單，請確認輸入內容。");
+        document.getElementById('localCount').innerText = tempParsedList.length;
+        document.getElementById('localPreviewText').innerText = tempParsedList.slice(0, 5).join(", ") + (tempParsedList.length > 5 ? "..." : "");
+        document.getElementById('localPreviewBox').style.display = 'block';
+        document.getElementById('btnStats').style.display = 'inline-block';
+    }
+
+    function processActivity(){
+        if(!document.getElementById('activityName').value) return alert("未選活動");
+        if(tempParsedList.length === 0) return alert("請先執行「解析名單」");
+        calculateStatsLocal();
+    }
+
     function saveActivity(){
-        const n=document.getElementById('activityName').value;if(!n)return alert("錯誤：未選擇活動");
+        const n=document.getElementById('activityName').value;if(!n)return alert("錯誤");
         document.getElementById('loading').style.display='flex';
         callApi({action:"saveData",activityName:n,activityCategory:document.getElementById('activityCategory').value,activityDate:document.getElementById('activityDate').value,userIds:validActivityIds},()=>{
             document.getElementById('loading').style.display='none';
@@ -760,6 +768,56 @@
             // Reload Data to refresh reports
             loadSystemData();
         });
+    }
+    
+    function calculateStatsLocal() {
+        let details = [], stats = { total: 0, roles: {} }; 
+        let processedIds = {}; 
+        unknownList = []; // Reset global unknown list
+        
+        tempParsedList.forEach(key => { 
+            let u = CACHED_USER_MAP[key]; 
+            if (u) { 
+                let uid = u.id || u.name; 
+                if (!processedIds[uid]) { 
+                    details.push(u); 
+                    processedIds[uid] = true; 
+                    stats.roles[u.role] = (stats.roles[u.role] || 0) + 1; 
+                } 
+            } else { 
+                if (!unknownList.includes(key)) unknownList.push(key); 
+            } 
+        }); 
+        
+        stats.total = details.length; 
+        validActivityIds = details.map(u => u.id || u.name); 
+        
+        document.getElementById('activityResultArea').style.display='block'; 
+        document.getElementById('actTotal').innerText = stats.total; 
+        const p=document.getElementById('previewRoleStats'); 
+        p.innerHTML=""; 
+        for(let k in stats.roles) p.innerHTML+=`<span class="badge ${getRoleClass(k)} fs-6 me-1">${k}:${stats.roles[k]}</span>`; 
+        
+        const unBox=document.getElementById('unknownUserBox'); 
+        if(unknownList.length>0){ 
+            unBox.style.display='block'; 
+            document.getElementById('unknownUserList').innerText=unknownList.join(", "); 
+        } else { 
+            unBox.style.display='none'; 
+        } 
+    }
+
+    function copyUnknowns() { 
+        navigator.clipboard.writeText(unknownList.join("\n")).then(() => alert("已複製未建檔名單")); 
+    }
+    
+    function goToUserTabWithData() { 
+        document.getElementById('pills-users-tab').click(); 
+        const importArea = document.getElementById('importInput'); 
+        importArea.value = unknownList.join("\n"); 
+        importArea.scrollIntoView({behavior: "smooth"}); 
+        document.getElementById('importCollapse').classList.add('show'); 
+        alert("已將未建檔名單帶入匯入框，請補充資料後執行「解析並預覽」。"); 
     }
 
     function callApi(payload,cb,silent=false){
