@@ -10,13 +10,21 @@
     
     <style>
         body { background-color: #f0f2f5; font-family: 'Noto Sans TC', sans-serif; }
+        
+        /* Login */
         .login-container { max-width: 450px; margin: 60px auto; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .login-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px; border-radius: 15px 15px 0 0; margin: -30px -30px 30px -30px; text-align: center; }
+
+        /* Main App */
         #mainApp { display: none; }
         .main-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         .header-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        /* Loading */
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        
+        /* UI */
         .nav-pills .nav-link { color: #555; background: #fff; margin-right: 10px; border: 1px solid #ddd; font-weight: bold; padding: 8px 20px; transition: all 0.3s; }
         .nav-pills .nav-link.active { background-color: #2a5298; color: white; border-color: #2a5298; box-shadow: 0 4px 6px rgba(4px, 82, 152, 0.3); }
         .table-hover tbody tr:hover { background-color: #f1f8ff; }
@@ -24,30 +32,61 @@
         .bg-purple { background-color: #6f42c1; color: white; }
         .cell-error { background-color: #f8d7da !important; color: #dc3545; border: 2px solid #dc3545 !important; font-weight: bold; }
         .cell-error::after { content: " ⚠️"; }
+
+        /* Role Filter Buttons */
         .role-filter-group .btn { margin-bottom: 5px; border-radius: 20px; font-size: 0.9em; }
         .role-filter-group .btn.active { background-color: #1e3c72; color: white; border-color: #1e3c72; }
+
+        /* Pagination */
         .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
         .page-info { font-size: 0.9rem; color: #6c757d; }
+
+        /* Report Tables */
         .report-table th, .disability-table th { background-color: #f8f9fa; vertical-align: middle; text-align: center; font-size: 0.85em; white-space: nowrap; }
         .report-table td, .disability-table td { vertical-align: middle; text-align: center; font-size: 0.85em; }
         .disability-table th { position: sticky; top: 0; z-index: 2; background-color: #e9ecef; border: 1px solid #dee2e6; }
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 40px; font-size: 0.8em; }
-        .vertical-header { writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap; height: 120px; padding: 5px 2px; }
+        
+        /* Vertical Header */
+        .vertical-header {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            white-space: nowrap;
+            height: 120px;
+            padding: 5px 2px;
+        }
         .grand-total-row { background-color: #2a5298 !important; color: white; font-weight: bold; }
-        .report-menu-btn { height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
-        .report-menu-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+
+        /* Report Menu */
+        .report-menu-btn {
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .report-menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
         .report-menu-icon { font-size: 3rem; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
+<!-- 全局 Loading 遮罩 -->
 <div id="loading" class="loading-overlay">
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
     <h5 class="mt-3 text-secondary fw-bold" id="loadingText">處理中...</h5>
     <button class="btn btn-sm btn-outline-danger mt-4" onclick="document.getElementById('loading').style.display='none'">強制解除鎖定</button>
 </div>
 
+<!-- 1. Login -->
 <div id="loginSection" class="login-container">
     <div class="login-header">
         <h3 class="fw-bold mb-0"><i class="fas fa-universal-access me-2"></i>致理科大資源教室</h3>
@@ -71,13 +110,15 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v42.2 (Clean Code Fix)</div>
+        <div>版本：v42.3 (Refactored & Expanded JS)</div>
         <div id="updateTimeDisplay">更新時間：2026-01-27 14:15</div>
     </div>
 </div>
 
+<!-- 2. Main App -->
 <div id="mainApp">
     <div class="main-container">
+        <!-- Header -->
         <div class="header-section">
             <div class="d-flex align-items-center gap-3">
                 <h4 class="fw-bold m-0"><i class="fas fa-university me-2"></i>致理科大資源教室</h4>
@@ -90,6 +131,7 @@
             </div>
         </div>
 
+        <!-- 內部連線設定 (隱藏) -->
         <div class="collapse mb-4" id="appConfigBox">
             <div class="card card-body bg-light border-warning">
                 <label class="form-label fw-bold text-dark mb-1">後端網址 (API URL)</label>
@@ -100,6 +142,7 @@
             </div>
         </div>
 
+        <!-- 分頁導航 -->
         <ul class="nav nav-pills mb-4 nav-fill" id="pills-tab" role="tablist">
             <li class="nav-item"><button class="nav-link active" id="pills-users-tab" data-bs-toggle="pill" data-bs-target="#pills-users">1. 人員資料庫</button></li>
             <li class="nav-item"><button class="nav-link" id="pills-act-mgr-tab" data-bs-toggle="pill" data-bs-target="#pills-act-mgr" onclick="loadActivityList()">2. 活動管理與列表</button></li>
@@ -109,16 +152,20 @@
 
         <div class="tab-content" id="pills-tabContent">
             
+            <!-- Tab 1: Users (Pagination & Filter) -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
                         <h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-users me-2"></i>人員管理與查詢</h5>
+                        
+                        <!-- 搜尋與篩選 -->
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
                             <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號... (即打即找)" oninput="filterUserList()">
                             <button class="btn btn-primary fw-bold" onclick="filterUserList()">查詢</button>
                         </div>
                         <div class="role-filter-group mb-3 text-center" id="roleFilterContainer"></div>
+
                         <div id="searchResultArea">
                             <div class="table-responsive" style="min-height: 200px;">
                                 <table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle table-hover">
@@ -138,6 +185,8 @@
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -150,6 +199,7 @@
                     </div>
                 </div>
 
+                <!-- User Batch Create -->
                 <div class="card border-info border-start border-4 mb-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#userBatchCreateCollapse" style="cursor: pointer;">
                         <h6 class="m-0 fw-bold text-dark"><i class="fas fa-user-plus me-2"></i>手動/批次建立人員 (表格模式)</h6>
@@ -186,6 +236,7 @@
                     </div>
                 </div>
                 
+                <!-- 匯入區塊 -->
                 <div class="card border-info border-start border-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse" style="cursor: pointer;">
                         <h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6>
@@ -206,6 +257,7 @@
                     </div>
                 </div>
                 
+                <!-- 匯入預覽 -->
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
                         <span>預覽與檢核 (可直接點選修正)</span>
@@ -229,6 +281,7 @@
                 </div>
             </div>
 
+            <!-- Tab 2: Activity Manager -->
             <div class="tab-pane fade" id="pills-act-mgr">
                 <div class="card border-warning border-start border-4 mb-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#batchCreateCollapse" style="cursor: pointer;">
@@ -264,81 +317,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white p-2">
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div>
-                            <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                                <select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()">
-                                    <option value="all">所有類別</option>
-                                </select>
-                                <select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select>
-                                <input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()">
-                                <button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive" style="max-height: 500px;">
-                            <table class="table table-hover mb-0 align-middle small">
-                                <thead class="table-light sticky-top">
-                                    <tr>
-                                        <th style="width: 12%">類別</th>
-                                        <th style="width: 12%">日期</th>
-                                        <th>活動名稱</th>
-                                        <th style="width:80px;" class="text-center">人數</th>
-                                        <th class="text-end" style="width: 160px;">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <!-- 活動列表區塊 -->
+                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()"><option value="all">所有類別</option></select><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top">
+                    <!-- [List Columns Fixed] -->
+                    <tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th>活動名稱</th><th style="width:80px;" class="text-center">人數</th><th class="text-end" style="width: 160px;">操作</th></tr>
+                </thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
             </div>
 
+            <!-- Tab 3: Sign In -->
             <div class="tab-pane fade" id="pills-activity">
-                <div class="alert alert-primary d-flex align-items-center mb-3">
-                    <i class="fas fa-lock me-3 fs-4"></i>
-                    <div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div>
-                </div>
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <input type="hidden" id="activityName">
-                            <input type="hidden" id="activityCategory">
-                            <input type="hidden" id="activityDate">
-                            <div class="col-md-12">
-                                <div class="row text-muted small mb-2 align-items-center">
-                                    <div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div>
-                                    <div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div>
-                                    <div class="col-md-4 text-end">
-                                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button>
-                                    </div>
-                                </div>
-                                <label class="form-label fw-bold">參與名單</label>
-                                <textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea>
-                            </div>
-                            <div class="col-12 d-flex gap-2 justify-content-end border-top pt-3">
-                                <button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button>
-                                <button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button>
-                            </div>
-                            <div class="col-12" id="localPreviewBox" style="display:none;">
-                                <div class="alert alert-info d-flex align-items-center mb-0">
-                                    <i class="fas fa-check-circle me-2"></i>
-                                    <div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="activityResultArea" style="display:none;" class="mt-4">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div>
-                        <div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div>
-                    </div>
-                </div>
+                <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div></div>
+                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
+                <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
                 
+                <!-- Duplicate & Unknown Warning -->
                 <div id="duplicateUserBox" class="alert alert-warning mt-3 shadow-sm border-warning" style="display:none;">
                     <h6 class="alert-heading fw-bold mb-0"><i class="fas fa-check-circle me-1"></i> <span id="duplicateUserText"></span></h6>
                 </div>
@@ -353,12 +345,7 @@
                     </div>
                 </div>
 
-                <div class="card border-success border-2 mt-4">
-                    <div class="card-body text-center">
-                        <h5 class="text-success fw-bold mb-3">統計完成，確認無誤？</h5>
-                        <button onclick="saveActivity()" class="btn btn-success btn-lg w-50 fw-bold shadow"><i class="fas fa-save me-2"></i>4. 確認並儲存</button>
-                    </div>
-                </div>
+                <div class="card border-success border-2 mt-4"><div class="card-body text-center"><h5 class="text-success fw-bold mb-3">統計完成，確認無誤？</h5><button onclick="saveActivity()" class="btn btn-success btn-lg w-50 fw-bold shadow"><i class="fas fa-save me-2"></i>4. 確認並儲存</button></div></div></div>
             </div>
 
             <!-- Tab 4: Report -->
@@ -394,6 +381,7 @@
                                     <h6 class="m-0 fw-bold text-nowrap"><i class="fas fa-table me-2"></i><span id="reportTitle">成果報表</span></h6>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <!-- Merge Checkbox (Only for Disability) -->
                                     <div class="form-check form-switch me-3" id="mergeControl" style="display:none;">
                                         <input class="form-check-input" type="checkbox" id="mergeByNameCheck" onchange="loadDisabilityReport()">
                                         <label class="form-check-label text-white fw-bold small" for="mergeByNameCheck">🔀 合併同名活動</label>
@@ -416,12 +404,14 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 600px;">
+                                <!-- Table A: Basic (Full Columns with Sped Gender) -->
                                 <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
                                     <thead class="sticky-top">
                                         <tr class="report-header-group">
                                             <th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th>活動方式</th><th>具體成效</th>
                                             <th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th>
-                                            <th colspan="3">總計</th><th colspan="3" class="bg-warning-subtle">特教生人次</th>
+                                            <th colspan="3">總計</th>
+                                            <th colspan="3" class="bg-warning-subtle">特教生人次</th>
                                         </tr>
                                         <tr class="report-header-group">
                                             <th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
@@ -433,6 +423,7 @@
                                     <tbody id="reportTableBodyBasic"><tr><td colspan="21" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 
+                                <!-- Table B: Disability -->
                                 <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;">
                                     <thead id="disabilityHead" class="sticky-top"></thead>
                                     <tbody id="disabilityBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
@@ -448,7 +439,40 @@
 
 <div class="modal fade" id="editActivityModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">編輯活動資料</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editOriginalName"><input type="hidden" id="editOriginalDate"><div class="row g-3"><div class="col-md-6"><label class="form-label">開始日期</label><input type="date" id="editDate" class="form-control"></div><div class="col-md-6"><label class="form-label">結束日期</label><input type="date" id="editEndDate" class="form-control"></div><div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"></div><div class="col-12"><label class="form-label">名稱</label><input type="text" id="editName" class="form-control"></div><div class="col-md-6"><label class="form-label">方式</label><input type="text" id="editMethod" class="form-control" placeholder="例：工作坊"></div><div class="col-md-6"><label class="form-label">成效/備註</label><input type="text" id="editOutcome" class="form-control" placeholder="例：滿意度4.5"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditActivity()">儲存</button></div></div></div></div>
 <div class="modal fade" id="editUserModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">編輯人員資料</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label fw-bold">ID (學號/身分證)</label><input type="text" id="editUserId" class="form-control" readonly disabled></div><div class="mb-3"><label class="form-label fw-bold">姓名</label><input type="text" id="editUserName" class="form-control"></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="form-label fw-bold">身分</label><select id="editUserRole" class="form-select"></select></div><div class="col-md-6"><label class="form-label fw-bold">性別</label><select id="editUserGender" class="form-select"><option value="男">男</option><option value="女">女</option></select></div></div><div class="mb-3"><label class="form-label fw-bold">科系/單位</label><input type="text" id="editUserDept" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">特教類別</label><select id="editUserDisability" class="form-select"></select></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditUser()">儲存變更</button></div></div></div></div>
-<div class="modal fade" id="manageParticipantsModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fas fa-users-cog me-2"></i>活動名單管理</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="partLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">載入名單中...</div></div><div id="partContent" style="display:none;"><div class="alert alert-light border small mb-2"><strong>活動：</strong><span id="manageActName" class="fw-bold"></span><br><strong>日期：</strong><span id="manageActDate"></span></div><input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal"><input type="text" id="partSearch" class="form-control form-control-sm mb-2" placeholder="🔍 搜尋姓名或學號..." oninput="filterPartList()"><div class="table-responsive"><table class="table table-sm table-striped align-middle"><thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead><tbody id="participantsTableBody"></tbody></table></div></div></div></div></div></div>
+<div class="modal fade" id="userBatchCreateCollapse" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">手動/批次建立人員</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-light text-center"><tr><th style="width:120px;">ID (學號) <span class="text-danger">*</span></th><th>姓名 <span class="text-danger">*</span></th><th style="width:100px;">身分</th><th style="width:80px;">性別</th><th>科系/單位</th><th style="width:140px;">特教類別</th><th style="width:50px;"></th></tr></thead><tbody id="userBatchTableBody"></tbody></table></div><div class="d-flex justify-content-between"><button class="btn btn-outline-secondary btn-sm" onclick="addUserBatchRow()">新增</button><button class="btn btn-primary btn-sm" onclick="submitUserBatchTable()"><i class="fas fa-check-circle me-1"></i>預覽確認</button></div></div></div></div></div>
+
+<!-- NEW Modal: Manage Participants -->
+<div class="modal fade" id="manageParticipantsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fas fa-users-cog me-2"></i>活動名單管理</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="partLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">載入名單中...</div></div>
+                <div id="partContent" style="display:none;">
+                    <div class="alert alert-light border small mb-2">
+                        <strong>活動：</strong><span id="manageActName" class="fw-bold"></span><br>
+                        <strong>日期：</strong><span id="manageActDate"></span>
+                    </div>
+                    <input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal">
+                    
+                    <!-- NEW Search Bar -->
+                    <input type="text" id="partSearch" class="form-control form-control-sm mb-2" placeholder="🔍 搜尋姓名或學號..." oninput="filterPartList()">
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped align-middle">
+                            <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead>
+                            <tbody id="participantsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <datalist id="modalCategoryOptions"></datalist>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -945,18 +969,6 @@
                     </td>
                  </tr>`;
              });
-             
-             // [NEW] Search Filter Logic
-             document.getElementById('partSearch').value = '';
-        });
-    }
-    
-    function filterPartList() {
-        const k = document.getElementById('partSearch').value.toLowerCase().trim();
-        const rows = document.querySelectorAll('#participantsTableBody tr');
-        rows.forEach(r => {
-            const text = r.innerText.toLowerCase();
-            r.style.display = text.includes(k) ? '' : 'none';
         });
     }
     
