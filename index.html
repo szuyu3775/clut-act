@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v42.3 (Refactored & Expanded JS)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-27 14:15</div>
+        <div>版本：v43.0 (Real-time Count Update)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-27 14:36</div>
     </div>
 </div>
 
@@ -350,6 +350,7 @@
 
             <!-- Tab 4: Report -->
             <div class="tab-pane fade" id="pills-report">
+                <!-- Menu -->
                 <div id="reportMenuContainer" class="text-center py-5">
                     <h4 class="fw-bold text-secondary mb-5">請選擇報表類型</h4>
                     <div class="row justify-content-center g-4">
@@ -372,6 +373,7 @@
                     </div>
                 </div>
 
+                <!-- Content -->
                 <div id="reportContentContainer" style="display: none;">
                     <div class="card shadow-sm">
                         <div class="card-header bg-success text-white">
@@ -437,6 +439,7 @@
     </div>
 </div>
 
+<!-- Modals -->
 <div class="modal fade" id="editActivityModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">編輯活動資料</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editOriginalName"><input type="hidden" id="editOriginalDate"><div class="row g-3"><div class="col-md-6"><label class="form-label">開始日期</label><input type="date" id="editDate" class="form-control"></div><div class="col-md-6"><label class="form-label">結束日期</label><input type="date" id="editEndDate" class="form-control"></div><div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"></div><div class="col-12"><label class="form-label">名稱</label><input type="text" id="editName" class="form-control"></div><div class="col-md-6"><label class="form-label">方式</label><input type="text" id="editMethod" class="form-control" placeholder="例：工作坊"></div><div class="col-md-6"><label class="form-label">成效/備註</label><input type="text" id="editOutcome" class="form-control" placeholder="例：滿意度4.5"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditActivity()">儲存</button></div></div></div></div>
 <div class="modal fade" id="editUserModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">編輯人員資料</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label fw-bold">ID (學號/身分證)</label><input type="text" id="editUserId" class="form-control" readonly disabled></div><div class="mb-3"><label class="form-label fw-bold">姓名</label><input type="text" id="editUserName" class="form-control"></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="form-label fw-bold">身分</label><select id="editUserRole" class="form-select"></select></div><div class="col-md-6"><label class="form-label fw-bold">性別</label><select id="editUserGender" class="form-select"><option value="男">男</option><option value="女">女</option></select></div></div><div class="mb-3"><label class="form-label fw-bold">科系/單位</label><input type="text" id="editUserDept" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">特教類別</label><select id="editUserDisability" class="form-select"></select></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditUser()">儲存變更</button></div></div></div></div>
 <div class="modal fade" id="userBatchCreateCollapse" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">手動/批次建立人員</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-light text-center"><tr><th style="width:120px;">ID (學號) <span class="text-danger">*</span></th><th>姓名 <span class="text-danger">*</span></th><th style="width:100px;">身分</th><th style="width:80px;">性別</th><th>科系/單位</th><th style="width:140px;">特教類別</th><th style="width:50px;"></th></tr></thead><tbody id="userBatchTableBody"></tbody></table></div><div class="d-flex justify-content-between"><button class="btn btn-outline-secondary btn-sm" onclick="addUserBatchRow()">新增</button><button class="btn btn-primary btn-sm" onclick="submitUserBatchTable()"><i class="fas fa-check-circle me-1"></i>預覽確認</button></div></div></div></div></div>
@@ -477,7 +480,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- Global Helpers ---
+    // --- 1. Global Helpers (MUST BE AT TOP) ---
     function getRoleClass(r){if(!r)return "bg-secondary";r=r.trim();if(r==="特教生")return "bg-danger";if(r==="教師")return "bg-warning text-dark";if(r.includes("職員"))return "bg-success";if(r==="工讀生")return "bg-primary";if(r==="輔導人員")return "bg-warning text-dark";if(r==="家長")return "bg-secondary";if(r==="校外人員")return "bg-purple";return "bg-secondary";}
     function getCategoryClass(c){if(!c)return "bg-secondary";if(c.includes("課業"))return "bg-success";if(c.includes("職涯"))return "bg-primary";if(c.includes("人際"))return "bg-warning text-dark";if(c.includes("特教"))return "bg-purple";if(c.includes("ISP")||c.includes("ITP")||c.includes("會議"))return "bg-dark";return "bg-secondary";}
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
@@ -486,18 +489,31 @@
     function safeJsonAttr(obj) { return JSON.stringify(obj).replace(/'/g, "&#39;"); }
     function escapeHtml(text) { if (!text) return ""; return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
+    // --- 2. Global Vars ---
     let API_URL = "";
     let usersToImport=[], validActivityIds=[], editModal, userEditModal, userBatchModal, partModal, cachedActivities=[], currentYearMode='calendar';
     let currentReportType = 'basic', currentReportFilterMode = 'calendar'; 
     let tempParsedList = [];
     let unknownList = []; 
+    // [NEW] Set to store existing participants for the selected activity
     let currentActivityExistingIds = new Set();
-    let CACHED_USERS = []; let CACHED_USER_MAP = {}; let CONFIG_CATEGORIES = []; let CONFIG_DISABILITIES = []; 
+    
+    // Data Cache
+    let CACHED_USERS = [];      
+    let CACHED_USER_MAP = {};   
+    let CONFIG_CATEGORIES = []; 
+    let CONFIG_DISABILITIES = []; 
     let VALID_DISABILITIES = ["自閉症","學習障礙","情緒行為障礙","腦性麻痺","肢體障礙","聽覺障礙","視覺障礙","智能障礙","身體病弱","多重障礙","其他障礙"]; 
     const VALID_GENDERS = ["男", "女"];
     let VALID_ROLES = ["特教生", "家長", "校外人士", "教師", "職員", "工讀生"];
-    let currentUserFilter = "all"; let currentPage = 1; const ITEMS_PER_PAGE = 20; let currentFilteredResults = []; 
+    
+    // Filter & Pagination
+    let currentUserFilter = "all"; 
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 20;
+    let currentFilteredResults = []; 
 
+    // --- 3. Window Onload ---
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -507,18 +523,27 @@
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
-
+    
+    // --- 4. Login & System Load ---
     function performLogin(e) {
         e.preventDefault();
         const url = document.getElementById('loginApiUrl').value.trim();
         const pwd = document.getElementById('loginPassword').value.trim();
         if(!url || !pwd) return alert("請輸入完整資訊");
+        
         API_URL = url;
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.disabled = true; btnLogin.innerText = "驗證中...";
-        if(pwd !== "1234") { btnLogin.disabled = false; btnLogin.innerText = "登入系統"; return alert("密碼錯誤"); }
+        
+        // Local Password Check (1234)
+        if(pwd !== "1234") {
+             btnLogin.disabled = false; btnLogin.innerText = "登入系統";
+             return alert("密碼錯誤");
+        }
+
         localStorage.setItem('gas_api_url_v1', url);
         if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = url;
+        
         showMainApp();
         document.getElementById('loadingText').innerText = '載入系統資料...';
         loadSystemData();
@@ -533,17 +558,27 @@
                     CACHED_USERS = (res.users || []).reverse(); 
                     CACHED_USER_MAP = {};
                     CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
+                    
                     const config = res.config || {};
                     if(config.categories && config.categories.length > 0) CONFIG_CATEGORIES = config.categories;
                     else CONFIG_CATEGORIES = ["課業","職涯","人際","特教知能","特教宣導","ISP","ITP"];
-                    if(config.disabilities && config.disabilities.length > 0) { CONFIG_DISABILITIES = config.disabilities; VALID_DISABILITIES = config.disabilities; }
+
+                    if(config.disabilities && config.disabilities.length > 0) {
+                         CONFIG_DISABILITIES = config.disabilities;
+                         VALID_DISABILITIES = config.disabilities;
+                    }
+                    
                     populateDropdowns();
                     preloadActivities();
                     setupRoleFilters();
                     filterUserList(); 
                     showMainApp();
-                } catch(e) { console.error("Data Error", e); }
-            } else { alert("載入系統資料失敗！\n" + res.message); }
+                } catch(e) {
+                    console.error("Data Error", e);
+                }
+            } else { 
+                alert("載入系統資料失敗！\n" + res.message);
+            }
         });
     }
 
@@ -563,12 +598,19 @@
         const options = CONFIG_CATEGORIES.map(c => `<option value="${c}">`).join('');
         dl.innerHTML = options;
         dlBatchList.forEach(e => e.innerHTML = options);
+
         const rf = document.getElementById('rptCategoryFilter');
         rf.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        
+        // [New] List Filter Dropdown
         const actListFilter = document.getElementById('actCategoryFilter');
-        if(actListFilter) { actListFilter.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join(''); }
+        if(actListFilter) {
+             actListFilter.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
         document.getElementById('editUserRole').innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join('');
         document.getElementById('editUserDisability').innerHTML = '<option value="">(無)</option>' + CONFIG_DISABILITIES.map(d => `<option value="${d}">${d}</option>`).join('');
+        
         const userBatchRoles = document.querySelectorAll('.u-role');
         const userBatchDis = document.querySelectorAll('.u-disability');
         userBatchRoles.forEach(s => s.innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join(''));
@@ -579,6 +621,7 @@
     function logout() { location.reload(); }
     function saveUrlInApp(){ const url=document.getElementById('appApiUrl').value.trim(); if(url){ localStorage.setItem('gas_api_url_v1',url); API_URL = url; new bootstrap.Collapse(document.getElementById('appConfigBox'),{toggle:true}).hide(); alert("網址已更新"); loadSystemData(); } }
     
+    // --- 5. User Management ---
     function searchUserLocal(){ const k=document.getElementById('userSearchInput').value.trim().toLowerCase(); renderUserList(k); }
     function setupRoleFilters() {
         const container = document.getElementById('roleFilterContainer');
@@ -671,11 +714,14 @@
         document.getElementById('loading').style.display='flex';
         callApi({action:"importUsers", users:[u]}, () => { btn.disabled = false; userEditModal.hide(); loadSystemData(); alert("資料更新成功！"); });
     }
+    
+    // User Batch
     function addUserBatchRow() {
         const tbody = document.getElementById('userBatchTableBody');
         const tr = document.createElement('tr');
         const roleOpts = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join('');
         const disOpts = '<option value="">(無)</option>' + (CONFIG_DISABILITIES || []).map(d => `<option value="${d}">${d}</option>`).join('');
+        
         tr.innerHTML = `<td><input class="form-control form-control-sm u-id" placeholder="ID"></td><td><input class="form-control form-control-sm u-name" placeholder="姓名"></td><td><select class="form-select form-select-sm u-role">${roleOpts}</select></td><td><select class="form-select form-select-sm u-gender"><option value="">請選擇</option><option value="男">男</option><option value="女">女</option></select></td><td><input class="form-control form-control-sm u-dept" placeholder="科系"></td><td><select class="form-select form-select-sm u-disability">${disOpts}</select></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;
         tbody.appendChild(tr);
     }
@@ -693,6 +739,8 @@
         renderImportTable(hasError);
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('userBatchCreateCollapse').classList.remove('show');
     }
+
+    // Import Logic
     function detectHeaderMapping(line) {
         if (!line) return null;
         const cols = line.split("\t").map(s => s.trim().toLowerCase());
@@ -702,26 +750,68 @@
         cols.forEach((col, index) => { for (const [key, words] of Object.entries(keywords)) { if (words.some(w => col.includes(w))) { map[key] = index; foundCount++; break; } } });
         return foundCount >= 2 ? map : null; 
     }
+
     function previewImport(){
         const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); 
         const lines=raw.split("\n").filter(l=>l.trim()); 
         usersToImport=[]; 
         let hasError = false;
+        
         const headerMap = detectHeaderMapping(lines[0]);
         const startRow = headerMap ? 1 : 0;
+        
         for(let i=startRow; i<lines.length; i++) {
             const c=lines[i].split("\t").map(s=>s.trim());
             let u = { id: "", name: "", role: "", gender: "", dept: "", disability: "" };
-            if (headerMap) { if(headerMap.hasOwnProperty('id')) u.id = c[headerMap.id] || ""; if(headerMap.hasOwnProperty('name')) u.name = c[headerMap.name] || ""; if(headerMap.hasOwnProperty('role')) u.role = c[headerMap.role] || ""; if(headerMap.hasOwnProperty('gender')) u.gender = c[headerMap.gender] || ""; if(headerMap.hasOwnProperty('dept')) u.dept = c[headerMap.dept] || ""; if(headerMap.hasOwnProperty('disability')) u.disability = c[headerMap.disability] || ""; } 
-            else { if(c.length>=2 && (c[0]||c[1])){ let remaining = []; c.forEach(val => { if(!val) return; if(VALID_GENDERS.includes(val)) { u.gender = val; return; } let r = val; if(r==="助理") r="工讀生"; if(r==="輔導人員") r="職員"; if(VALID_ROLES.includes(r)) { u.role = r; return; } if(VALID_DISABILITIES.includes(val)) { u.disability = val; return; } if(val.match(/(系|所|處|室|中心|學位學程)$/)) { u.dept = val; return; } remaining.push(val); }); remaining.forEach(val => { if(!u.id && /^[A-Za-z0-9]+$/.test(val)) { u.id = val; return; } if(!u.name && /^[\u4e00-\u9fa5]{2,4}$/.test(val)) { u.name = val; return; } if(!u.dept) u.dept = val; }); } }
-            if(u.role==="助理") u.role="工讀生"; if(u.role==="輔導人員") u.role="職員"; if (VALID_DISABILITIES.includes(u.role)) { u.disability = u.role; u.role = ""; } if(u.disability && u.disability.trim() !== "") { u.role = "特教生"; }
-            u.errors = {}; if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; } if(!u.name || u.name.length < 2 || u.name.length > 4) { u.errors.name = true; hasError = true; } if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; } else if (!u.gender) { u.errors.gender = true; hasError = true; } if(!VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; } if(u.role === "特教生") { if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } } else { if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
+            
+            if (headerMap) {
+                if(headerMap.hasOwnProperty('id')) u.id = c[headerMap.id] || "";
+                if(headerMap.hasOwnProperty('name')) u.name = c[headerMap.name] || "";
+                if(headerMap.hasOwnProperty('role')) u.role = c[headerMap.role] || "";
+                if(headerMap.hasOwnProperty('gender')) u.gender = c[headerMap.gender] || "";
+                if(headerMap.hasOwnProperty('dept')) u.dept = c[headerMap.dept] || "";
+                if(headerMap.hasOwnProperty('disability')) u.disability = c[headerMap.disability] || "";
+            } else {
+                if(c.length>=2 && (c[0]||c[1])){
+                    let remaining = [];
+                    c.forEach(val => {
+                        if(!val) return;
+                        if(VALID_GENDERS.includes(val)) { u.gender = val; return; }
+                        let r = val; if(r==="助理") r="工讀生"; if(r==="輔導人員") r="職員";
+                        if(VALID_ROLES.includes(r)) { u.role = r; return; }
+                        if(VALID_DISABILITIES.includes(val)) { u.disability = val; return; }
+                        if(val.match(/(系|所|處|室|中心|學位學程)$/)) { u.dept = val; return; }
+                        remaining.push(val);
+                    });
+                    remaining.forEach(val => {
+                        if(!u.id && /^[A-Za-z0-9]+$/.test(val)) { u.id = val; return; }
+                        if(!u.name && /^[\u4e00-\u9fa5]{2,4}$/.test(val)) { u.name = val; return; }
+                        if(!u.dept) u.dept = val;
+                    });
+                }
+            }
+            
+            if(u.role==="助理") u.role="工讀生"; 
+            if(u.role==="輔導人員") u.role="職員";
+            if (VALID_DISABILITIES.includes(u.role)) { u.disability = u.role; u.role = ""; }
+            if(u.disability && u.disability.trim() !== "") { u.role = "特教生"; }
+            
+            u.errors = {};
+            if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
+            if(!u.name || u.name.length < 2 || u.name.length > 4) { u.errors.name = true; hasError = true; }
+            if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; } else if (!u.gender) { u.errors.gender = true; hasError = true; }
+            if(!VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; }
+            if(u.role === "特教生") { if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
+            else { if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
+            
             if (u.id || u.name) usersToImport.push(u);
         }
+        
         if(usersToImport.length===0) return alert("解析失敗");
         renderImportTable(hasError);
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('importCollapse').classList.remove('show');
     }
+    
     function renderImportTable(initialErrorState) {
         const tb = document.getElementById('previewTableBody'); tb.innerHTML = ""; let stillHasError = false;
         usersToImport.forEach((u, idx) => {
@@ -737,40 +827,12 @@
     function updateSubmitButton(hasError) { const btn = document.getElementById('btnSubmitImport'); const msg = document.getElementById('importErrorMsg'); if(hasError) { btn.disabled = true; btn.innerText = "請修正錯誤欄位"; btn.classList.replace('btn-success', 'btn-secondary'); msg.style.display = 'block'; } else { btn.disabled = false; btn.innerText = "確認寫入資料庫"; btn.classList.replace('btn-secondary', 'btn-success'); msg.style.display = 'none'; } }
     function cancelImport() { document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); usersToImport = []; }
     function submitImport(){if(usersToImport.length===0)return; document.getElementById('loading').style.display='flex'; callApi({action:"importUsers",users:usersToImport},()=>{ document.getElementById('loading').style.display='none'; alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
-
-    // --- Report Logic ---
-    function initReportMenu() {
-        document.getElementById('reportMenuContainer').style.display = 'block';
-        document.getElementById('reportContentContainer').style.display = 'none';
-        if (cachedActivities && cachedActivities.length > 0) { updateReportYearSelect(); } 
-        else { callApi({action:"getActivities"}, res => { cachedActivities = res.activities || []; updateReportYearSelect(); }); }
-    }
-    function selectReport(type) {
-        currentReportType = type;
-        document.getElementById('reportMenuContainer').style.display = 'none';
-        document.getElementById('reportContentContainer').style.display = 'block';
-        const basicTbl = document.getElementById('reportTableBasic');
-        const disTbl = document.getElementById('reportTableDisability');
-        const catFilter = document.getElementById('rptCategoryFilter');
-        const mergeControl = document.getElementById('mergeControl');
-        basicTbl.style.display = 'none'; disTbl.style.display = 'none';
-        if (type === 'basic') { document.getElementById('reportTitle').innerText = '校務基本資料庫'; basicTbl.style.display = 'table'; catFilter.style.display = 'none'; mergeControl.style.display = 'none'; loadReportData(); } 
-        else { document.getElementById('reportTitle').innerText = '活動障別統計'; disTbl.style.display = 'table'; catFilter.style.display = 'inline-block'; mergeControl.style.display = 'inline-block'; loadDisabilityReport(); }
-    }
-    function backToReportMenu() { document.getElementById('reportContentContainer').style.display = 'none'; document.getElementById('reportMenuContainer').style.display = 'block'; document.getElementById('reportTableBodyBasic').innerHTML = ''; document.getElementById('disabilityHead').innerHTML = ''; document.getElementById('disabilityBody').innerHTML = ''; }
-    function loadSelectedReport() { if (currentReportType === 'basic') loadReportData(); else loadDisabilityReport(); }
-    function changeReportFilterMode(mode) { currentReportFilterMode = mode; const semSelect = document.getElementById('rptSemesterSelect'); semSelect.style.display = (mode === 'academic') ? 'inline-block' : 'none'; updateReportYearSelect(); loadSelectedReport(); }
-    function updateReportYearSelect() { const sel = document.getElementById('rptYearSelect'); const years = new Set(); if(cachedActivities) { cachedActivities.forEach(a => { if (currentReportFilterMode === 'calendar') { years.add(getCalendarYear(a.date)); } else { years.add(getAcademicYear(a.date).toString()); } }); } const sorted = Array.from(years).sort().reverse(); let ty = ''; const today = new Date(); if (currentReportFilterMode === 'calendar') ty = today.getFullYear().toString(); else { const m = today.getMonth() + 1; const y = today.getFullYear(); ty = ((m >= 8) ? (y - 1911) : (y - 1912)).toString(); } sel.innerHTML = '<option value="all">全部年度</option>'; sorted.forEach(y => { const lbl = (currentReportFilterMode === 'calendar') ? `${y} 年` : `${y} 學年度`; sel.innerHTML += `<option value="${y}">${lbl}</option>`; }); if(sel.dataset.userSelected!=='true') { if(sorted.includes(ty)) sel.value = ty; else if(sorted.length > 0) sel.value = sorted[0]; } }
-    function loadReportData() { const year = document.getElementById('rptYearSelect').value; const semester = document.getElementById('rptSemesterSelect').value; const filter = { mode: currentReportFilterMode, year: year, semester: semester }; const tbody = document.getElementById('reportTableBodyBasic'); tbody.innerHTML = '<tr><td colspan="21" class="text-center py-5 text-muted">載入中...</td></tr>'; callApi({action:"getReportData", filter: filter}, res=>{ if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="21" class="text-center py-5">無資料</td></tr>';return;} const rows = res.report.map(r => { const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下"; const spedTotal = r.spedCountM + r.spedCountF; return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.outcome}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td><td class="bg-warning-subtle text-danger fw-bold">${r.spedCountM}</td><td class="bg-warning-subtle text-danger fw-bold">${r.spedCountF}</td><td class="bg-warning-subtle text-danger fw-bold">${spedTotal}</td></tr>`; }).join(''); tbody.innerHTML = rows; }); }
-    function loadDisabilityReport() { const year = document.getElementById('rptYearSelect').value; const semester = document.getElementById('rptSemesterSelect').value; const categoryFilter = document.getElementById('rptCategoryFilter').value; const merge = document.getElementById('mergeByNameCheck').checked; const filter = { mode: currentReportFilterMode, year: year, semester: semester }; const thead = document.getElementById('disabilityHead'); const tbody = document.getElementById('disabilityBody'); tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">載入中...</td></tr>'; callApi({action:"getMatrixData", filter: filter, mergeByName: merge}, res=>{ const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter)); if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; } const disabilities = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"]; let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`; disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`; thead.innerHTML = hRow; let colTotals = {}; disabilities.forEach(d => colTotals[d] = 0); let grandTotal = 0; let bHtml = activities.map(act => { const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} }; let rowSum = 0; let cellsHtml = ""; disabilities.forEach(d => { const count = stat.details[d] || 0; rowSum += count; colTotals[d] += count; const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light"; cellsHtml += `<td class="${style}">${count}</td>`; }); grandTotal += rowSum; const semesterText = act.semester == 1 ? "上" : "下"; return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; }).join(''); let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`; disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); footerHtml += `<td>${grandTotal}</td></tr>`; tbody.innerHTML = bHtml + footerHtml; }); }
-
-    // --- 7. Activity Functions ---
     function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
+    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
     function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const cv=document.getElementById('actCategoryFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&(cv==='all'||a.category===cv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
     // [MODIFIED] Added 'list-ul' button for Manage Participants
     r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-center">${a.count || 0}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
-    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
@@ -896,6 +958,8 @@
 
     function copyUnknowns() { navigator.clipboard.writeText(unknownList.join("\n")).then(() => alert("已複製未建檔名單")); }
     function goToUserTabWithData() { document.getElementById('pills-users-tab').click(); const importArea = document.getElementById('importInput'); importArea.value = unknownList.join("\n"); importArea.scrollIntoView({behavior: "smooth"}); document.getElementById('importCollapse').classList.add('show'); alert("已將未建檔名單帶入匯入框，請補充資料後執行「解析並預覽」。"); }
+    
+    // [FIXED] Force refresh of activity list after save
     function saveActivity(){
         const n=document.getElementById('activityName').value;if(!n)return alert("錯誤：未選擇活動");
         // Strict Check: Must have valid IDs
@@ -925,8 +989,9 @@
             document.getElementById('duplicateUserBox').style.display='none';
             validActivityIds = []; // Clear Cache
             
-            // Reload Data to refresh reports
+            // Reload Data to refresh reports AND activity list count
             loadSystemData();
+            loadActivityList(true); // Force refresh list
         });
     }
 
@@ -969,17 +1034,27 @@
                     </td>
                  </tr>`;
              });
+             
+             // [NEW] Search Filter Logic
+             document.getElementById('partSearch').value = '';
         });
     }
     
+    function filterPartList() {
+        const k = document.getElementById('partSearch').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#participantsTableBody tr');
+        rows.forEach(r => {
+            const text = r.innerText.toLowerCase();
+            r.style.display = text.includes(k) ? '' : 'none';
+        });
+    }
+    
+    // [FIXED] Auto-refresh main list after deletion
     function deleteParticipantFromActivity(studentId, studentName) {
         if (!confirm(`確定要將 ${studentName} 從此活動名單中移除嗎？`)) return;
         
         const actName = document.getElementById('manageActNameVal').value;
         const actDate = document.getElementById('manageActDateVal').value;
-        
-        // Don't use global loading, keep modal open
-        // Show small feedback
         
         callApi({
             action: "deleteParticipant", 
@@ -988,8 +1063,10 @@
             studentId: studentId
         }, (res) => {
             if (res.status === 'success') {
-                // Refresh list directly
+                // Refresh modal list
                 openParticipantsModal({name: actName, date: actDate});
+                // Refresh main list count in background
+                loadActivityList(true);
             } else {
                 alert("刪除失敗：" + res.message);
             }
