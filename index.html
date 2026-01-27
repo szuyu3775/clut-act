@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v43.0 (Real-time Count Update)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-27 14:36</div>
+        <div>版本：v44.0 (Fix JS Parsing Error)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-27 15:09</div>
     </div>
 </div>
 
@@ -152,20 +152,17 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
+            <!-- Tab 1: Users -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
                         <h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-users me-2"></i>人員管理與查詢</h5>
-                        
-                        <!-- 搜尋與篩選 -->
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
                             <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號... (即打即找)" oninput="filterUserList()">
                             <button class="btn btn-primary fw-bold" onclick="filterUserList()">查詢</button>
                         </div>
                         <div class="role-filter-group mb-3 text-center" id="roleFilterContainer"></div>
-
                         <div id="searchResultArea">
                             <div class="table-responsive" style="min-height: 200px;">
                                 <table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle table-hover">
@@ -180,15 +177,11 @@
                                             <th style="width: 100px;">操作</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="searchResultBody">
-                                        <tr><td colspan="7" class="text-muted py-3">載入中...</td></tr>
-                                    </tbody>
+                                    <tbody id="searchResultBody"></tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
                             <div class="pagination-container">
-                                <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
+                                <div class="page-info" id="paginationInfo"></div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
                                     <button class="btn btn-outline-secondary" onclick="changePage(-1)" id="btnPrevPage" disabled><i class="fas fa-chevron-left"></i></button>
                                     <button class="btn btn-outline-secondary disabled" id="pageIndicator" style="width: 80px;">1 / 1</button>
@@ -958,8 +951,6 @@
 
     function copyUnknowns() { navigator.clipboard.writeText(unknownList.join("\n")).then(() => alert("已複製未建檔名單")); }
     function goToUserTabWithData() { document.getElementById('pills-users-tab').click(); const importArea = document.getElementById('importInput'); importArea.value = unknownList.join("\n"); importArea.scrollIntoView({behavior: "smooth"}); document.getElementById('importCollapse').classList.add('show'); alert("已將未建檔名單帶入匯入框，請補充資料後執行「解析並預覽」。"); }
-    
-    // [FIXED] Force refresh of activity list after save
     function saveActivity(){
         const n=document.getElementById('activityName').value;if(!n)return alert("錯誤：未選擇活動");
         // Strict Check: Must have valid IDs
@@ -989,9 +980,10 @@
             document.getElementById('duplicateUserBox').style.display='none';
             validActivityIds = []; // Clear Cache
             
-            // Reload Data to refresh reports AND activity list count
+            // Reload Data to refresh reports
             loadSystemData();
-            loadActivityList(true); // Force refresh list
+            // Force reload activity list to update count
+            loadActivityList(true);
         });
     }
 
@@ -1049,12 +1041,14 @@
         });
     }
     
-    // [FIXED] Auto-refresh main list after deletion
     function deleteParticipantFromActivity(studentId, studentName) {
         if (!confirm(`確定要將 ${studentName} 從此活動名單中移除嗎？`)) return;
         
         const actName = document.getElementById('manageActNameVal').value;
         const actDate = document.getElementById('manageActDateVal').value;
+        
+        // Don't use global loading, keep modal open
+        // Show small feedback
         
         callApi({
             action: "deleteParticipant", 
@@ -1063,9 +1057,9 @@
             studentId: studentId
         }, (res) => {
             if (res.status === 'success') {
-                // Refresh modal list
+                // Refresh list directly
                 openParticipantsModal({name: actName, date: actDate});
-                // Refresh main list count in background
+                // Force refresh activity list count
                 loadActivityList(true);
             } else {
                 alert("刪除失敗：" + res.message);
