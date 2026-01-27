@@ -10,21 +10,13 @@
     
     <style>
         body { background-color: #f0f2f5; font-family: 'Noto Sans TC', sans-serif; }
-        
-        /* Login */
         .login-container { max-width: 450px; margin: 60px auto; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .login-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 20px; border-radius: 15px 15px 0 0; margin: -30px -30px 30px -30px; text-align: center; }
-
-        /* Main App */
         #mainApp { display: none; }
         .main-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
         .header-section { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        
-        /* Loading */
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        
-        /* UI */
         .nav-pills .nav-link { color: #555; background: #fff; margin-right: 10px; border: 1px solid #ddd; font-weight: bold; padding: 8px 20px; transition: all 0.3s; }
         .nav-pills .nav-link.active { background-color: #2a5298; color: white; border-color: #2a5298; box-shadow: 0 4px 6px rgba(4px, 82, 152, 0.3); }
         .table-hover tbody tr:hover { background-color: #f1f8ff; }
@@ -32,61 +24,30 @@
         .bg-purple { background-color: #6f42c1; color: white; }
         .cell-error { background-color: #f8d7da !important; color: #dc3545; border: 2px solid #dc3545 !important; font-weight: bold; }
         .cell-error::after { content: " ⚠️"; }
-
-        /* Role Filter Buttons */
         .role-filter-group .btn { margin-bottom: 5px; border-radius: 20px; font-size: 0.9em; }
         .role-filter-group .btn.active { background-color: #1e3c72; color: white; border-color: #1e3c72; }
-
-        /* Pagination */
         .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
         .page-info { font-size: 0.9rem; color: #6c757d; }
-
-        /* Report Tables */
         .report-table th, .disability-table th { background-color: #f8f9fa; vertical-align: middle; text-align: center; font-size: 0.85em; white-space: nowrap; }
         .report-table td, .disability-table td { vertical-align: middle; text-align: center; font-size: 0.85em; }
         .disability-table th { position: sticky; top: 0; z-index: 2; background-color: #e9ecef; border: 1px solid #dee2e6; }
         .disability-total { background-color: #e2e6ea; font-weight: bold; color: #2a5298; }
         .col-disability { min-width: 40px; font-size: 0.8em; }
-        
-        /* Vertical Header */
-        .vertical-header {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            white-space: nowrap;
-            height: 120px;
-            padding: 5px 2px;
-        }
+        .vertical-header { writing-mode: vertical-rl; text-orientation: mixed; white-space: nowrap; height: 120px; padding: 5px 2px; }
         .grand-total-row { background-color: #2a5298 !important; color: white; font-weight: bold; }
-
-        /* Report Menu */
-        .report-menu-btn {
-            height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .report-menu-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-        }
+        .report-menu-btn { height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+        .report-menu-btn:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
         .report-menu-icon { font-size: 3rem; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<!-- 全局 Loading 遮罩 -->
 <div id="loading" class="loading-overlay">
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
     <h5 class="mt-3 text-secondary fw-bold" id="loadingText">處理中...</h5>
     <button class="btn btn-sm btn-outline-danger mt-4" onclick="document.getElementById('loading').style.display='none'">強制解除鎖定</button>
 </div>
 
-<!-- 1. Login -->
 <div id="loginSection" class="login-container">
     <div class="login-header">
         <h3 class="fw-bold mb-0"><i class="fas fa-universal-access me-2"></i>致理科大資源教室</h3>
@@ -110,15 +71,13 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v43.0 (Logic Checked)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-27 13:35</div>
+        <div>版本：v42.2 (Clean Code Fix)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-27 14:15</div>
     </div>
 </div>
 
-<!-- 2. Main App -->
 <div id="mainApp">
     <div class="main-container">
-        <!-- Header -->
         <div class="header-section">
             <div class="d-flex align-items-center gap-3">
                 <h4 class="fw-bold m-0"><i class="fas fa-university me-2"></i>致理科大資源教室</h4>
@@ -131,7 +90,6 @@
             </div>
         </div>
 
-        <!-- 內部連線設定 (隱藏) -->
         <div class="collapse mb-4" id="appConfigBox">
             <div class="card card-body bg-light border-warning">
                 <label class="form-label fw-bold text-dark mb-1">後端網址 (API URL)</label>
@@ -142,7 +100,6 @@
             </div>
         </div>
 
-        <!-- 分頁導航 -->
         <ul class="nav nav-pills mb-4 nav-fill" id="pills-tab" role="tablist">
             <li class="nav-item"><button class="nav-link active" id="pills-users-tab" data-bs-toggle="pill" data-bs-target="#pills-users">1. 人員資料庫</button></li>
             <li class="nav-item"><button class="nav-link" id="pills-act-mgr-tab" data-bs-toggle="pill" data-bs-target="#pills-act-mgr" onclick="loadActivityList()">2. 活動管理與列表</button></li>
@@ -152,20 +109,16 @@
 
         <div class="tab-content" id="pills-tabContent">
             
-            <!-- Tab 1: Users (Pagination & Filter) -->
             <div class="tab-pane fade show active" id="pills-users">
                 <div class="card mb-4 border-primary border-top border-4">
                     <div class="card-body">
                         <h5 class="card-title fw-bold text-primary mb-3"><i class="fas fa-users me-2"></i>人員管理與查詢</h5>
-                        
-                        <!-- 搜尋與篩選 -->
                         <div class="input-group mb-3">
                             <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
                             <input type="text" id="userSearchInput" class="form-control" placeholder="輸入姓名或學號... (即打即找)" oninput="filterUserList()">
                             <button class="btn btn-primary fw-bold" onclick="filterUserList()">查詢</button>
                         </div>
                         <div class="role-filter-group mb-3 text-center" id="roleFilterContainer"></div>
-
                         <div id="searchResultArea">
                             <div class="table-responsive" style="min-height: 200px;">
                                 <table class="table table-sm table-bordered table-striped mb-0 text-center small align-middle table-hover">
@@ -185,8 +138,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            
-                            <!-- Pagination Controls -->
                             <div class="pagination-container">
                                 <div class="page-info" id="paginationInfo">顯示第 0-0 筆，共 0 筆</div>
                                 <div class="btn-group btn-group-sm" id="paginationBtns">
@@ -199,7 +150,6 @@
                     </div>
                 </div>
 
-                <!-- User Batch Create -->
                 <div class="card border-info border-start border-4 mb-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#userBatchCreateCollapse" style="cursor: pointer;">
                         <h6 class="m-0 fw-bold text-dark"><i class="fas fa-user-plus me-2"></i>手動/批次建立人員 (表格模式)</h6>
@@ -228,7 +178,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <button class="btn btn-outline-secondary btn-sm me-2" onclick="addUserBatchRow()">新增</button>
-                                    <button class="btn btn-outline-danger btn-sm" onclick="clearUserBatchTable()"><i class="fas fa-trash-alt me-1"></i>全部清空</button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="clearUserBatchTable()">全部清空</button>
                                 </div>
                                 <button onclick="submitUserBatchTable()" class="btn btn-primary fw-bold text-white"><i class="fas fa-check-circle me-1"></i>解析並預覽</button>
                             </div>
@@ -236,7 +186,6 @@
                     </div>
                 </div>
                 
-                <!-- 匯入區塊 -->
                 <div class="card border-info border-start border-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#importCollapse" style="cursor: pointer;">
                         <h6 class="m-0 fw-bold text-info"><i class="fas fa-file-import me-2"></i>批次匯入/更新人員 (點擊展開)</h6>
@@ -257,7 +206,6 @@
                     </div>
                 </div>
                 
-                <!-- 匯入預覽 -->
                 <div id="importPreviewArea" style="display:none;" class="card border-primary mb-3 mt-3">
                     <div class="card-header bg-primary text-white d-flex justify-content-between">
                         <span>預覽與檢核 (可直接點選修正)</span>
@@ -281,7 +229,6 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Activity Manager -->
             <div class="tab-pane fade" id="pills-act-mgr">
                 <div class="card border-warning border-start border-4 mb-4">
                     <div class="card-header bg-white" data-bs-toggle="collapse" data-bs-target="#batchCreateCollapse" style="cursor: pointer;">
@@ -309,28 +256,89 @@
                             </div>
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="addBatchRow()"><i class="fas fa-plus me-1"></i>新增一列</button>
-                                    <button class="btn btn-outline-danger btn-sm" onclick="clearBatchTable()"><i class="fas fa-trash-alt me-1"></i>全部清空</button>
+                                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="addBatchRow()">新增一列</button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="clearBatchTable()">全部清空</button>
                                 </div>
                                 <button onclick="submitBatchActivities()" class="btn btn-warning fw-bold text-dark"><i class="fas fa-cloud-upload-alt me-1"></i>確認建立活動</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- 活動列表區塊 -->
-                <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()"><option value="all">所有類別</option></select><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top">
-                    <!-- [List Columns Fixed] -->
-                    <tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th>活動名稱</th><th style="width:80px;" class="text-center">人數</th><th class="text-end" style="width: 160px;">操作</th></tr>
-                </thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white p-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div>
+                            <div class="d-flex gap-2 flex-grow-1 justify-content-end">
+                                <select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()">
+                                    <option value="all">所有類別</option>
+                                </select>
+                                <select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select>
+                                <input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()">
+                                <button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 500px;">
+                            <table class="table table-hover mb-0 align-middle small">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th style="width: 12%">類別</th>
+                                        <th style="width: 12%">日期</th>
+                                        <th>活動名稱</th>
+                                        <th style="width:80px;" class="text-center">人數</th>
+                                        <th class="text-end" style="width: 160px;">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Tab 3: Sign In -->
             <div class="tab-pane fade" id="pills-activity">
-                <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div></div>
-                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
-                <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
+                <div class="alert alert-primary d-flex align-items-center mb-3">
+                    <i class="fas fa-lock me-3 fs-4"></i>
+                    <div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <input type="hidden" id="activityName">
+                            <input type="hidden" id="activityCategory">
+                            <input type="hidden" id="activityDate">
+                            <div class="col-md-12">
+                                <div class="row text-muted small mb-2 align-items-center">
+                                    <div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div>
+                                    <div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div>
+                                    <div class="col-md-4 text-end">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button>
+                                    </div>
+                                </div>
+                                <label class="form-label fw-bold">參與名單</label>
+                                <textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea>
+                            </div>
+                            <div class="col-12 d-flex gap-2 justify-content-end border-top pt-3">
+                                <button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button>
+                                <button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button>
+                            </div>
+                            <div class="col-12" id="localPreviewBox" style="display:none;">
+                                <div class="alert alert-info d-flex align-items-center mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="activityResultArea" style="display:none;" class="mt-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div>
+                        <div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div>
+                    </div>
+                </div>
                 
-                <!-- Duplicate & Unknown Warning -->
                 <div id="duplicateUserBox" class="alert alert-warning mt-3 shadow-sm border-warning" style="display:none;">
                     <h6 class="alert-heading fw-bold mb-0"><i class="fas fa-check-circle me-1"></i> <span id="duplicateUserText"></span></h6>
                 </div>
@@ -345,12 +353,16 @@
                     </div>
                 </div>
 
-                <div class="card border-success border-2 mt-4"><div class="card-body text-center"><h5 class="text-success fw-bold mb-3">統計完成，確認無誤？</h5><button onclick="saveActivity()" class="btn btn-success btn-lg w-50 fw-bold shadow"><i class="fas fa-save me-2"></i>4. 確認並儲存</button></div></div></div>
+                <div class="card border-success border-2 mt-4">
+                    <div class="card-body text-center">
+                        <h5 class="text-success fw-bold mb-3">統計完成，確認無誤？</h5>
+                        <button onclick="saveActivity()" class="btn btn-success btn-lg w-50 fw-bold shadow"><i class="fas fa-save me-2"></i>4. 確認並儲存</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab 4: Report -->
             <div class="tab-pane fade" id="pills-report">
-                <!-- Menu -->
                 <div id="reportMenuContainer" class="text-center py-5">
                     <h4 class="fw-bold text-secondary mb-5">請選擇報表類型</h4>
                     <div class="row justify-content-center g-4">
@@ -373,7 +385,6 @@
                     </div>
                 </div>
 
-                <!-- Content -->
                 <div id="reportContentContainer" style="display: none;">
                     <div class="card shadow-sm">
                         <div class="card-header bg-success text-white">
@@ -383,7 +394,6 @@
                                     <h6 class="m-0 fw-bold text-nowrap"><i class="fas fa-table me-2"></i><span id="reportTitle">成果報表</span></h6>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <!-- Merge Checkbox (Only for Disability) -->
                                     <div class="form-check form-switch me-3" id="mergeControl" style="display:none;">
                                         <input class="form-check-input" type="checkbox" id="mergeByNameCheck" onchange="loadDisabilityReport()">
                                         <label class="form-check-label text-white fw-bold small" for="mergeByNameCheck">🔀 合併同名活動</label>
@@ -406,24 +416,23 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 600px;">
-                                <!-- Table A: Basic (Simplified) -->
                                 <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
                                     <thead class="sticky-top">
                                         <tr class="report-header-group">
-                                            <th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th>
+                                            <th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th>活動方式</th><th>具體成效</th>
                                             <th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th>
-                                            <th colspan="3">總計</th>
+                                            <th colspan="3">總計</th><th colspan="3" class="bg-warning-subtle">特教生人次</th>
                                         </tr>
                                         <tr class="report-header-group">
-                                            <th></th><th></th><th></th><th></th><th></th><th></th><th></th>
+                                            <th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
                                             <th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th>
                                             <th>男</th><th>女</th><th>小計</th>
+                                            <th class="bg-warning-subtle">男</th><th class="bg-warning-subtle">女</th><th class="bg-warning-subtle">小計</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="21" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 
-                                <!-- Table B: Disability -->
                                 <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;">
                                     <thead id="disabilityHead" class="sticky-top"></thead>
                                     <tbody id="disabilityBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
@@ -437,48 +446,14 @@
     </div>
 </div>
 
-<!-- Modals -->
 <div class="modal fade" id="editActivityModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">編輯活動資料</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="editOriginalName"><input type="hidden" id="editOriginalDate"><div class="row g-3"><div class="col-md-6"><label class="form-label">開始日期</label><input type="date" id="editDate" class="form-control"></div><div class="col-md-6"><label class="form-label">結束日期</label><input type="date" id="editEndDate" class="form-control"></div><div class="col-md-6"><label class="form-label">類別</label><input type="text" id="editCategory" class="form-control" list="modalCategoryOptions"></div><div class="col-12"><label class="form-label">名稱</label><input type="text" id="editName" class="form-control"></div><div class="col-md-6"><label class="form-label">方式</label><input type="text" id="editMethod" class="form-control" placeholder="例：工作坊"></div><div class="col-md-6"><label class="form-label">成效/備註</label><input type="text" id="editOutcome" class="form-control" placeholder="例：滿意度4.5"></div></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditActivity()">儲存</button></div></div></div></div>
 <div class="modal fade" id="editUserModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold">編輯人員資料</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="mb-3"><label class="form-label fw-bold">ID (學號/身分證)</label><input type="text" id="editUserId" class="form-control" readonly disabled></div><div class="mb-3"><label class="form-label fw-bold">姓名</label><input type="text" id="editUserName" class="form-control"></div><div class="row g-2 mb-3"><div class="col-md-6"><label class="form-label fw-bold">身分</label><select id="editUserRole" class="form-select"></select></div><div class="col-md-6"><label class="form-label fw-bold">性別</label><select id="editUserGender" class="form-select"><option value="男">男</option><option value="女">女</option></select></div></div><div class="mb-3"><label class="form-label fw-bold">科系/單位</label><input type="text" id="editUserDept" class="form-control"></div><div class="mb-3"><label class="form-label fw-bold">特教類別</label><select id="editUserDisability" class="form-select"></select></div></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button><button type="button" class="btn btn-primary" onclick="submitEditUser()">儲存變更</button></div></div></div></div>
-<div class="modal fade" id="userBatchCreateCollapse" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title fw-bold">手動/批次建立人員</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead class="table-light text-center"><tr><th style="width:120px;">ID (學號) <span class="text-danger">*</span></th><th>姓名 <span class="text-danger">*</span></th><th style="width:100px;">身分</th><th style="width:80px;">性別</th><th>科系/單位</th><th style="width:140px;">特教類別</th><th style="width:50px;"></th></tr></thead><tbody id="userBatchTableBody"></tbody></table></div><div class="d-flex justify-content-between"><button class="btn btn-outline-secondary btn-sm" onclick="addUserBatchRow()">新增</button><button class="btn btn-primary btn-sm" onclick="submitUserBatchTable()"><i class="fas fa-check-circle me-1"></i>預覽確認</button></div></div></div></div></div>
-
-<!-- NEW Modal: Manage Participants -->
-<div class="modal fade" id="manageParticipantsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fas fa-users-cog me-2"></i>活動名單管理</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="partLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">載入名單中...</div></div>
-                <div id="partContent" style="display:none;">
-                    <div class="alert alert-light border small mb-2">
-                        <strong>活動：</strong><span id="manageActName" class="fw-bold"></span><br>
-                        <strong>日期：</strong><span id="manageActDate"></span>
-                    </div>
-                    <input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal">
-                    
-                    <!-- NEW Search Bar -->
-                    <input type="text" id="partSearch" class="form-control form-control-sm mb-2" placeholder="🔍 搜尋姓名或學號..." oninput="filterPartList()">
-                    
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped align-middle">
-                            <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead>
-                            <tbody id="participantsTableBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<div class="modal fade" id="manageParticipantsModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fas fa-users-cog me-2"></i>活動名單管理</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="partLoading" class="text-center py-4"><div class="spinner-border text-primary"></div><div class="mt-2 text-muted">載入名單中...</div></div><div id="partContent" style="display:none;"><div class="alert alert-light border small mb-2"><strong>活動：</strong><span id="manageActName" class="fw-bold"></span><br><strong>日期：</strong><span id="manageActDate"></span></div><input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal"><input type="text" id="partSearch" class="form-control form-control-sm mb-2" placeholder="🔍 搜尋姓名或學號..." oninput="filterPartList()"><div class="table-responsive"><table class="table table-sm table-striped align-middle"><thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead><tbody id="participantsTableBody"></tbody></table></div></div></div></div></div></div>
 <datalist id="modalCategoryOptions"></datalist>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- 1. Global Helpers (MUST BE AT TOP) ---
+    // --- Global Helpers ---
     function getRoleClass(r){if(!r)return "bg-secondary";r=r.trim();if(r==="特教生")return "bg-danger";if(r==="教師")return "bg-warning text-dark";if(r.includes("職員"))return "bg-success";if(r==="工讀生")return "bg-primary";if(r==="輔導人員")return "bg-warning text-dark";if(r==="家長")return "bg-secondary";if(r==="校外人員")return "bg-purple";return "bg-secondary";}
     function getCategoryClass(c){if(!c)return "bg-secondary";if(c.includes("課業"))return "bg-success";if(c.includes("職涯"))return "bg-primary";if(c.includes("人際"))return "bg-warning text-dark";if(c.includes("特教"))return "bg-purple";if(c.includes("ISP")||c.includes("ITP")||c.includes("會議"))return "bg-dark";return "bg-secondary";}
     function getAcademicYear(dStr){if(!dStr)return 0; const d=new Date(dStr); if(isNaN(d))return 0; const m=d.getMonth()+1; return (m>=8)?(d.getFullYear()-1911):(d.getFullYear()-1912);}
@@ -487,31 +462,18 @@
     function safeJsonAttr(obj) { return JSON.stringify(obj).replace(/'/g, "&#39;"); }
     function escapeHtml(text) { if (!text) return ""; return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
-    // --- 2. Global Vars ---
     let API_URL = "";
     let usersToImport=[], validActivityIds=[], editModal, userEditModal, userBatchModal, partModal, cachedActivities=[], currentYearMode='calendar';
     let currentReportType = 'basic', currentReportFilterMode = 'calendar'; 
     let tempParsedList = [];
     let unknownList = []; 
-    // [NEW] Set to store existing participants for the selected activity
     let currentActivityExistingIds = new Set();
-    
-    // Data Cache
-    let CACHED_USERS = [];      
-    let CACHED_USER_MAP = {};   
-    let CONFIG_CATEGORIES = []; 
-    let CONFIG_DISABILITIES = []; 
+    let CACHED_USERS = []; let CACHED_USER_MAP = {}; let CONFIG_CATEGORIES = []; let CONFIG_DISABILITIES = []; 
     let VALID_DISABILITIES = ["自閉症","學習障礙","情緒行為障礙","腦性麻痺","肢體障礙","聽覺障礙","視覺障礙","智能障礙","身體病弱","多重障礙","其他障礙"]; 
     const VALID_GENDERS = ["男", "女"];
     let VALID_ROLES = ["特教生", "家長", "校外人士", "教師", "職員", "工讀生"];
-    
-    // Filter & Pagination
-    let currentUserFilter = "all"; 
-    let currentPage = 1;
-    const ITEMS_PER_PAGE = 20;
-    let currentFilteredResults = []; 
+    let currentUserFilter = "all"; let currentPage = 1; const ITEMS_PER_PAGE = 20; let currentFilteredResults = []; 
 
-    // --- 3. Window Onload ---
     window.onload=function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -521,27 +483,18 @@
         const savedUrl = localStorage.getItem('gas_api_url_v1');
         if(savedUrl) { document.getElementById('loginApiUrl').value = savedUrl; if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = savedUrl; }
     };
-    
-    // --- 4. Login & System Load ---
+
     function performLogin(e) {
         e.preventDefault();
         const url = document.getElementById('loginApiUrl').value.trim();
         const pwd = document.getElementById('loginPassword').value.trim();
         if(!url || !pwd) return alert("請輸入完整資訊");
-        
         API_URL = url;
         const btnLogin = document.getElementById('btnLogin');
         btnLogin.disabled = true; btnLogin.innerText = "驗證中...";
-        
-        // Local Password Check (1234)
-        if(pwd !== "1234") {
-             btnLogin.disabled = false; btnLogin.innerText = "登入系統";
-             return alert("密碼錯誤");
-        }
-
+        if(pwd !== "1234") { btnLogin.disabled = false; btnLogin.innerText = "登入系統"; return alert("密碼錯誤"); }
         localStorage.setItem('gas_api_url_v1', url);
         if(document.getElementById('appApiUrl')) document.getElementById('appApiUrl').value = url;
-        
         showMainApp();
         document.getElementById('loadingText').innerText = '載入系統資料...';
         loadSystemData();
@@ -556,27 +509,17 @@
                     CACHED_USERS = (res.users || []).reverse(); 
                     CACHED_USER_MAP = {};
                     CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
-                    
                     const config = res.config || {};
                     if(config.categories && config.categories.length > 0) CONFIG_CATEGORIES = config.categories;
                     else CONFIG_CATEGORIES = ["課業","職涯","人際","特教知能","特教宣導","ISP","ITP"];
-
-                    if(config.disabilities && config.disabilities.length > 0) {
-                         CONFIG_DISABILITIES = config.disabilities;
-                         VALID_DISABILITIES = config.disabilities;
-                    }
-                    
+                    if(config.disabilities && config.disabilities.length > 0) { CONFIG_DISABILITIES = config.disabilities; VALID_DISABILITIES = config.disabilities; }
                     populateDropdowns();
                     preloadActivities();
                     setupRoleFilters();
                     filterUserList(); 
                     showMainApp();
-                } catch(e) {
-                    console.error("Data Error", e);
-                }
-            } else { 
-                alert("載入系統資料失敗！\n" + res.message);
-            }
+                } catch(e) { console.error("Data Error", e); }
+            } else { alert("載入系統資料失敗！\n" + res.message); }
         });
     }
 
@@ -596,19 +539,12 @@
         const options = CONFIG_CATEGORIES.map(c => `<option value="${c}">`).join('');
         dl.innerHTML = options;
         dlBatchList.forEach(e => e.innerHTML = options);
-
         const rf = document.getElementById('rptCategoryFilter');
         rf.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-        
-        // [New] List Filter Dropdown
         const actListFilter = document.getElementById('actCategoryFilter');
-        if(actListFilter) {
-             actListFilter.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-        }
-
+        if(actListFilter) { actListFilter.innerHTML = '<option value="all">所有類別</option>' + CONFIG_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join(''); }
         document.getElementById('editUserRole').innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join('');
         document.getElementById('editUserDisability').innerHTML = '<option value="">(無)</option>' + CONFIG_DISABILITIES.map(d => `<option value="${d}">${d}</option>`).join('');
-        
         const userBatchRoles = document.querySelectorAll('.u-role');
         const userBatchDis = document.querySelectorAll('.u-disability');
         userBatchRoles.forEach(s => s.innerHTML = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join(''));
@@ -619,7 +555,6 @@
     function logout() { location.reload(); }
     function saveUrlInApp(){ const url=document.getElementById('appApiUrl').value.trim(); if(url){ localStorage.setItem('gas_api_url_v1',url); API_URL = url; new bootstrap.Collapse(document.getElementById('appConfigBox'),{toggle:true}).hide(); alert("網址已更新"); loadSystemData(); } }
     
-    // --- 5. User Management ---
     function searchUserLocal(){ const k=document.getElementById('userSearchInput').value.trim().toLowerCase(); renderUserList(k); }
     function setupRoleFilters() {
         const container = document.getElementById('roleFilterContainer');
@@ -712,14 +647,11 @@
         document.getElementById('loading').style.display='flex';
         callApi({action:"importUsers", users:[u]}, () => { btn.disabled = false; userEditModal.hide(); loadSystemData(); alert("資料更新成功！"); });
     }
-    
-    // User Batch
     function addUserBatchRow() {
         const tbody = document.getElementById('userBatchTableBody');
         const tr = document.createElement('tr');
         const roleOpts = VALID_ROLES.map(r => `<option value="${r}">${r}</option>`).join('');
         const disOpts = '<option value="">(無)</option>' + (CONFIG_DISABILITIES || []).map(d => `<option value="${d}">${d}</option>`).join('');
-        
         tr.innerHTML = `<td><input class="form-control form-control-sm u-id" placeholder="ID"></td><td><input class="form-control form-control-sm u-name" placeholder="姓名"></td><td><select class="form-select form-select-sm u-role">${roleOpts}</select></td><td><select class="form-select form-select-sm u-gender"><option value="">請選擇</option><option value="男">男</option><option value="女">女</option></select></td><td><input class="form-control form-control-sm u-dept" placeholder="科系"></td><td><select class="form-select form-select-sm u-disability">${disOpts}</select></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;
         tbody.appendChild(tr);
     }
@@ -737,8 +669,6 @@
         renderImportTable(hasError);
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('userBatchCreateCollapse').classList.remove('show');
     }
-
-    // Import Logic
     function detectHeaderMapping(line) {
         if (!line) return null;
         const cols = line.split("\t").map(s => s.trim().toLowerCase());
@@ -748,68 +678,26 @@
         cols.forEach((col, index) => { for (const [key, words] of Object.entries(keywords)) { if (words.some(w => col.includes(w))) { map[key] = index; foundCount++; break; } } });
         return foundCount >= 2 ? map : null; 
     }
-
     function previewImport(){
         const raw=document.getElementById('importInput').value; if(!raw.trim())return alert("無資料"); 
         const lines=raw.split("\n").filter(l=>l.trim()); 
         usersToImport=[]; 
         let hasError = false;
-        
         const headerMap = detectHeaderMapping(lines[0]);
         const startRow = headerMap ? 1 : 0;
-        
         for(let i=startRow; i<lines.length; i++) {
             const c=lines[i].split("\t").map(s=>s.trim());
             let u = { id: "", name: "", role: "", gender: "", dept: "", disability: "" };
-            
-            if (headerMap) {
-                if(headerMap.hasOwnProperty('id')) u.id = c[headerMap.id] || "";
-                if(headerMap.hasOwnProperty('name')) u.name = c[headerMap.name] || "";
-                if(headerMap.hasOwnProperty('role')) u.role = c[headerMap.role] || "";
-                if(headerMap.hasOwnProperty('gender')) u.gender = c[headerMap.gender] || "";
-                if(headerMap.hasOwnProperty('dept')) u.dept = c[headerMap.dept] || "";
-                if(headerMap.hasOwnProperty('disability')) u.disability = c[headerMap.disability] || "";
-            } else {
-                if(c.length>=2 && (c[0]||c[1])){
-                    let remaining = [];
-                    c.forEach(val => {
-                        if(!val) return;
-                        if(VALID_GENDERS.includes(val)) { u.gender = val; return; }
-                        let r = val; if(r==="助理") r="工讀生"; if(r==="輔導人員") r="職員";
-                        if(VALID_ROLES.includes(r)) { u.role = r; return; }
-                        if(VALID_DISABILITIES.includes(val)) { u.disability = val; return; }
-                        if(val.match(/(系|所|處|室|中心|學位學程)$/)) { u.dept = val; return; }
-                        remaining.push(val);
-                    });
-                    remaining.forEach(val => {
-                        if(!u.id && /^[A-Za-z0-9]+$/.test(val)) { u.id = val; return; }
-                        if(!u.name && /^[\u4e00-\u9fa5]{2,4}$/.test(val)) { u.name = val; return; }
-                        if(!u.dept) u.dept = val;
-                    });
-                }
-            }
-            
-            if(u.role==="助理") u.role="工讀生"; 
-            if(u.role==="輔導人員") u.role="職員";
-            if (VALID_DISABILITIES.includes(u.role)) { u.disability = u.role; u.role = ""; }
-            if(u.disability && u.disability.trim() !== "") { u.role = "特教生"; }
-            
-            u.errors = {};
-            if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; }
-            if(!u.name || u.name.length < 2 || u.name.length > 4) { u.errors.name = true; hasError = true; }
-            if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; } else if (!u.gender) { u.errors.gender = true; hasError = true; }
-            if(!VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; }
-            if(u.role === "特教生") { if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
-            else { if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
-            
+            if (headerMap) { if(headerMap.hasOwnProperty('id')) u.id = c[headerMap.id] || ""; if(headerMap.hasOwnProperty('name')) u.name = c[headerMap.name] || ""; if(headerMap.hasOwnProperty('role')) u.role = c[headerMap.role] || ""; if(headerMap.hasOwnProperty('gender')) u.gender = c[headerMap.gender] || ""; if(headerMap.hasOwnProperty('dept')) u.dept = c[headerMap.dept] || ""; if(headerMap.hasOwnProperty('disability')) u.disability = c[headerMap.disability] || ""; } 
+            else { if(c.length>=2 && (c[0]||c[1])){ let remaining = []; c.forEach(val => { if(!val) return; if(VALID_GENDERS.includes(val)) { u.gender = val; return; } let r = val; if(r==="助理") r="工讀生"; if(r==="輔導人員") r="職員"; if(VALID_ROLES.includes(r)) { u.role = r; return; } if(VALID_DISABILITIES.includes(val)) { u.disability = val; return; } if(val.match(/(系|所|處|室|中心|學位學程)$/)) { u.dept = val; return; } remaining.push(val); }); remaining.forEach(val => { if(!u.id && /^[A-Za-z0-9]+$/.test(val)) { u.id = val; return; } if(!u.name && /^[\u4e00-\u9fa5]{2,4}$/.test(val)) { u.name = val; return; } if(!u.dept) u.dept = val; }); } }
+            if(u.role==="助理") u.role="工讀生"; if(u.role==="輔導人員") u.role="職員"; if (VALID_DISABILITIES.includes(u.role)) { u.disability = u.role; u.role = ""; } if(u.disability && u.disability.trim() !== "") { u.role = "特教生"; }
+            u.errors = {}; if(u.id && !/^[a-zA-Z0-9]+$/.test(u.id)) { u.errors.id = true; hasError = true; } if(!u.name || u.name.length < 2 || u.name.length > 4) { u.errors.name = true; hasError = true; } if(u.gender && !VALID_GENDERS.includes(u.gender)) { u.errors.gender = true; hasError = true; } else if (!u.gender) { u.errors.gender = true; hasError = true; } if(!VALID_ROLES.includes(u.role)) { u.errors.role = true; hasError = true; } if(u.role === "特教生") { if(!VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } } else { if(u.disability && !VALID_DISABILITIES.includes(u.disability)) { u.errors.disability = true; hasError = true; } }
             if (u.id || u.name) usersToImport.push(u);
         }
-        
         if(usersToImport.length===0) return alert("解析失敗");
         renderImportTable(hasError);
         document.getElementById('importPreviewArea').style.display='block'; document.getElementById('importCollapse').classList.remove('show');
     }
-    
     function renderImportTable(initialErrorState) {
         const tb = document.getElementById('previewTableBody'); tb.innerHTML = ""; let stillHasError = false;
         usersToImport.forEach((u, idx) => {
@@ -826,141 +714,31 @@
     function cancelImport() { document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); usersToImport = []; }
     function submitImport(){if(usersToImport.length===0)return; document.getElementById('loading').style.display='flex'; callApi({action:"importUsers",users:usersToImport},()=>{ document.getElementById('loading').style.display='none'; alert("匯入成功");document.getElementById('importInput').value="";document.getElementById('importPreviewArea').style.display='none'; document.getElementById('importCollapse').classList.add('show'); loadSystemData(); });}
 
-    // --- 6. Report Logic (NEW MENU SYSTEM) ---
+    // --- Report Logic ---
     function initReportMenu() {
         document.getElementById('reportMenuContainer').style.display = 'block';
         document.getElementById('reportContentContainer').style.display = 'none';
-        
-        // Silent update year list
         if (cachedActivities && cachedActivities.length > 0) { updateReportYearSelect(); } 
         else { callApi({action:"getActivities"}, res => { cachedActivities = res.activities || []; updateReportYearSelect(); }); }
     }
-
     function selectReport(type) {
         currentReportType = type;
         document.getElementById('reportMenuContainer').style.display = 'none';
         document.getElementById('reportContentContainer').style.display = 'block';
-        
         const basicTbl = document.getElementById('reportTableBasic');
         const disTbl = document.getElementById('reportTableDisability');
         const catFilter = document.getElementById('rptCategoryFilter');
         const mergeControl = document.getElementById('mergeControl');
-        
-        // Reset Views
-        basicTbl.style.display = 'none';
-        disTbl.style.display = 'none';
-        
-        if (type === 'basic') {
-            document.getElementById('reportTitle').innerText = '校務基本資料庫';
-            basicTbl.style.display = 'table';
-            catFilter.style.display = 'none';
-            mergeControl.style.display = 'none';
-            loadReportData();
-        } else {
-            document.getElementById('reportTitle').innerText = '活動障別統計';
-            disTbl.style.display = 'table';
-            catFilter.style.display = 'inline-block';
-            mergeControl.style.display = 'inline-block';
-            loadDisabilityReport();
-        }
+        basicTbl.style.display = 'none'; disTbl.style.display = 'none';
+        if (type === 'basic') { document.getElementById('reportTitle').innerText = '校務基本資料庫'; basicTbl.style.display = 'table'; catFilter.style.display = 'none'; mergeControl.style.display = 'none'; loadReportData(); } 
+        else { document.getElementById('reportTitle').innerText = '活動障別統計'; disTbl.style.display = 'table'; catFilter.style.display = 'inline-block'; mergeControl.style.display = 'inline-block'; loadDisabilityReport(); }
     }
-
-    function backToReportMenu() {
-        document.getElementById('reportContentContainer').style.display = 'none';
-        document.getElementById('reportMenuContainer').style.display = 'block';
-        // Clear tables to free memory
-        document.getElementById('reportTableBodyBasic').innerHTML = '';
-        document.getElementById('disabilityHead').innerHTML = '';
-        document.getElementById('disabilityBody').innerHTML = '';
-    }
-
-    function loadSelectedReport() {
-        if (currentReportType === 'basic') loadReportData();
-        else loadDisabilityReport();
-    }
-
-    function changeReportFilterMode(mode) {
-        currentReportFilterMode = mode;
-        const semSelect = document.getElementById('rptSemesterSelect');
-        semSelect.style.display = (mode === 'academic') ? 'inline-block' : 'none';
-        updateReportYearSelect(); 
-        loadSelectedReport();
-    }
-    
-    function updateReportYearSelect() {
-        const sel = document.getElementById('rptYearSelect');
-        const years = new Set();
-        if(cachedActivities) { cachedActivities.forEach(a => { if (currentReportFilterMode === 'calendar') { years.add(getCalendarYear(a.date)); } else { years.add(getAcademicYear(a.date).toString()); } }); }
-        const sorted = Array.from(years).sort().reverse();
-        let ty = ''; const today = new Date(); if (currentReportFilterMode === 'calendar') ty = today.getFullYear().toString(); else { const m = today.getMonth() + 1; const y = today.getFullYear(); ty = ((m >= 8) ? (y - 1911) : (y - 1912)).toString(); }
-        sel.innerHTML = '<option value="all">全部年度</option>';
-        sorted.forEach(y => { const lbl = (currentReportFilterMode === 'calendar') ? `${y} 年` : `${y} 學年度`; sel.innerHTML += `<option value="${y}">${lbl}</option>`; });
-        if(sel.dataset.userSelected!=='true') { if(sorted.includes(ty)) sel.value = ty; else if(sorted.length > 0) sel.value = sorted[0]; }
-    }
-    
-    function loadReportData() {
-        const year = document.getElementById('rptYearSelect').value;
-        const semester = document.getElementById('rptSemesterSelect').value;
-        const filter = { mode: currentReportFilterMode, year: year, semester: semester };
-        const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="16" class="text-center py-5 text-muted">載入中...</td></tr>';
-        callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="16" class="text-center py-5">無資料</td></tr>';return;}
-            const rows = res.report.map(r => {
-                const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
-                return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td></tr>`;
-            }).join('');
-            tbody.innerHTML = rows;
-        });
-    }
-
-    function loadDisabilityReport() {
-        const year = document.getElementById('rptYearSelect').value;
-        const semester = document.getElementById('rptSemesterSelect').value;
-        const categoryFilter = document.getElementById('rptCategoryFilter').value;
-        const merge = document.getElementById('mergeByNameCheck').checked; 
-        
-        const filter = { mode: currentReportFilterMode, year: year, semester: semester };
-        const thead = document.getElementById('disabilityHead');
-        const tbody = document.getElementById('disabilityBody');
-        tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">載入中...</td></tr>';
-        
-        callApi({action:"getMatrixData", filter: filter, mergeByName: merge}, res=>{
-            const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter));
-            if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; }
-            
-            // Use VALID_DISABILITIES which now comes from config or default
-            // Ensure we use the global variable which is populated by loadSystemData
-            const displayDisabilities = (VALID_DISABILITIES && VALID_DISABILITIES.length > 0) ? VALID_DISABILITIES : ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"];
-            
-            let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`;
-            displayDisabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; });
-            hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`;
-            thead.innerHTML = hRow;
-
-            let colTotals = {}; displayDisabilities.forEach(d => colTotals[d] = 0);
-            let grandTotal = 0;
-
-            let bHtml = activities.map(act => {
-                const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} };
-                let rowSum = 0; let cellsHtml = "";
-                displayDisabilities.forEach(d => {
-                    const count = stat.details[d] || 0;
-                    rowSum += count; colTotals[d] += count;
-                    const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light";
-                    cellsHtml += `<td class="${style}">${count}</td>`;
-                });
-                grandTotal += rowSum;
-                const semesterText = act.semester == 1 ? "上" : "下";
-                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`;
-            }).join('');
-            
-            let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`;
-            displayDisabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; });
-            footerHtml += `<td>${grandTotal}</td></tr>`;
-            tbody.innerHTML = bHtml + footerHtml;
-        });
-    }
+    function backToReportMenu() { document.getElementById('reportContentContainer').style.display = 'none'; document.getElementById('reportMenuContainer').style.display = 'block'; document.getElementById('reportTableBodyBasic').innerHTML = ''; document.getElementById('disabilityHead').innerHTML = ''; document.getElementById('disabilityBody').innerHTML = ''; }
+    function loadSelectedReport() { if (currentReportType === 'basic') loadReportData(); else loadDisabilityReport(); }
+    function changeReportFilterMode(mode) { currentReportFilterMode = mode; const semSelect = document.getElementById('rptSemesterSelect'); semSelect.style.display = (mode === 'academic') ? 'inline-block' : 'none'; updateReportYearSelect(); loadSelectedReport(); }
+    function updateReportYearSelect() { const sel = document.getElementById('rptYearSelect'); const years = new Set(); if(cachedActivities) { cachedActivities.forEach(a => { if (currentReportFilterMode === 'calendar') { years.add(getCalendarYear(a.date)); } else { years.add(getAcademicYear(a.date).toString()); } }); } const sorted = Array.from(years).sort().reverse(); let ty = ''; const today = new Date(); if (currentReportFilterMode === 'calendar') ty = today.getFullYear().toString(); else { const m = today.getMonth() + 1; const y = today.getFullYear(); ty = ((m >= 8) ? (y - 1911) : (y - 1912)).toString(); } sel.innerHTML = '<option value="all">全部年度</option>'; sorted.forEach(y => { const lbl = (currentReportFilterMode === 'calendar') ? `${y} 年` : `${y} 學年度`; sel.innerHTML += `<option value="${y}">${lbl}</option>`; }); if(sel.dataset.userSelected!=='true') { if(sorted.includes(ty)) sel.value = ty; else if(sorted.length > 0) sel.value = sorted[0]; } }
+    function loadReportData() { const year = document.getElementById('rptYearSelect').value; const semester = document.getElementById('rptSemesterSelect').value; const filter = { mode: currentReportFilterMode, year: year, semester: semester }; const tbody = document.getElementById('reportTableBodyBasic'); tbody.innerHTML = '<tr><td colspan="21" class="text-center py-5 text-muted">載入中...</td></tr>'; callApi({action:"getReportData", filter: filter}, res=>{ if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="21" class="text-center py-5">無資料</td></tr>';return;} const rows = res.report.map(r => { const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下"; const spedTotal = r.spedCountM + r.spedCountF; return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.outcome}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td><td class="bg-warning-subtle text-danger fw-bold">${r.spedCountM}</td><td class="bg-warning-subtle text-danger fw-bold">${r.spedCountF}</td><td class="bg-warning-subtle text-danger fw-bold">${spedTotal}</td></tr>`; }).join(''); tbody.innerHTML = rows; }); }
+    function loadDisabilityReport() { const year = document.getElementById('rptYearSelect').value; const semester = document.getElementById('rptSemesterSelect').value; const categoryFilter = document.getElementById('rptCategoryFilter').value; const merge = document.getElementById('mergeByNameCheck').checked; const filter = { mode: currentReportFilterMode, year: year, semester: semester }; const thead = document.getElementById('disabilityHead'); const tbody = document.getElementById('disabilityBody'); tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">載入中...</td></tr>'; callApi({action:"getMatrixData", filter: filter, mergeByName: merge}, res=>{ const activities = res.activities.filter(a => categoryFilter === 'all' || a.category.includes(categoryFilter)); if(!activities || activities.length===0){ tbody.innerHTML='<tr><td class="text-center py-5 text-muted">無符合條件的活動資料</td></tr>'; thead.innerHTML=""; return; } const disabilities = ["自閉症", "身體病弱", "肢體障礙", "情緒行為障礙", "智能障礙", "視覺障礙", "腦性麻痺", "學習障礙", "聽覺障礙", "多重障礙"]; let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">類別</th><th rowspan="2">起</th><th rowspan="2">迄</th>`; disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`; thead.innerHTML = hRow; let colTotals = {}; disabilities.forEach(d => colTotals[d] = 0); let grandTotal = 0; let bHtml = activities.map(act => { const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} }; let rowSum = 0; let cellsHtml = ""; disabilities.forEach(d => { const count = stat.details[d] || 0; rowSum += count; colTotals[d] += count; const style = count > 0 ? "fw-bold text-dark bg-warning-subtle" : "text-light"; cellsHtml += `<td class="${style}">${count}</td>`; }); grandTotal += rowSum; const semesterText = act.semester == 1 ? "上" : "下"; return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; }).join(''); let footerHtml = `<tr class="grand-total-row"><td colspan="6" class="text-end pe-3">本頁總計</td>`; disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); footerHtml += `<td>${grandTotal}</td></tr>`; tbody.innerHTML = bHtml + footerHtml; }); }
 
     // --- 7. Activity Functions ---
     function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
@@ -968,6 +746,7 @@
     // [MODIFIED] Added 'list-ul' button for Manage Participants
     r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-center">${a.count || 0}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
+    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
