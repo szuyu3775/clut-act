@@ -110,8 +110,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v42.0 (Strict Menu Mode)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-26 23:40</div>
+        <div>版本：v43.0 (Logic Checked)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-27 13:35</div>
     </div>
 </div>
 
@@ -320,8 +320,8 @@
                 <!-- 活動列表區塊 -->
                 <div class="card shadow-sm"><div class="card-header bg-dark text-white p-2"><div class="d-flex flex-wrap align-items-center gap-2"><div class="d-flex align-items-center me-auto"><h6 class="m-0 fw-bold ps-2 me-3"><i class="fas fa-list me-2"></i>活動列表</h6></div><div class="d-flex gap-2 flex-grow-1 justify-content-end"><select id="actCategoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterActivities()"><option value="all">所有類別</option></select><select id="yearFilter" class="form-select form-select-sm" style="width: auto;" onchange="this.dataset.userSelected = 'true'; filterActivities()"><option value="all">全部</option></select><input type="text" id="activitySearchInput" class="form-control form-control-sm" style="max-width: 200px;" placeholder="🔍 搜尋..." oninput="filterActivities()"><button class="btn btn-sm btn-outline-light" onclick="loadActivityList(true)"><i class="fas fa-sync-alt"></i></button></div></div></div><div class="card-body p-0"><div class="table-responsive" style="max-height: 500px;"><table class="table table-hover mb-0 align-middle small"><thead class="table-light sticky-top">
                     <!-- [List Columns Fixed] -->
-                    <tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th>活動名稱</th><th class="text-end" style="width: 160px;">操作</th></tr>
-                </thead><tbody id="activityListBody"><tr><td colspan="4" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
+                    <tr><th style="width: 12%">類別</th><th style="width: 12%">日期</th><th>活動名稱</th><th style="width:80px;" class="text-center">人數</th><th class="text-end" style="width: 160px;">操作</th></tr>
+                </thead><tbody id="activityListBody"><tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr></tbody></table></div></div></div>
             </div>
 
             <!-- Tab 3: Sign In -->
@@ -406,21 +406,21 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 600px;">
-                                <!-- Table A: Basic (Correct Columns) -->
+                                <!-- Table A: Basic (Simplified) -->
                                 <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
                                     <thead class="sticky-top">
                                         <tr class="report-header-group">
-                                            <th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th>活動方式</th><th>具體成效</th>
+                                            <th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th class="col-text">活動方式</th>
                                             <th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th>
-                                            <th colspan="3">總計</th><th>特教生人次</th>
+                                            <th colspan="3">總計</th>
                                         </tr>
                                         <tr class="report-header-group">
-                                            <th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th>
+                                            <th></th><th></th><th></th><th></th><th></th><th></th><th></th>
                                             <th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th>
-                                            <th>男</th><th>女</th><th>小計</th><th></th>
+                                            <th>男</th><th>女</th><th>小計</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="18" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="16" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 
                                 <!-- Table B: Disability -->
@@ -458,6 +458,10 @@
                         <strong>日期：</strong><span id="manageActDate"></span>
                     </div>
                     <input type="hidden" id="manageActNameVal"><input type="hidden" id="manageActDateVal">
+                    
+                    <!-- NEW Search Bar -->
+                    <input type="text" id="partSearch" class="form-control form-control-sm mb-2" placeholder="🔍 搜尋姓名或學號..." oninput="filterPartList()">
+                    
                     <div class="table-responsive">
                         <table class="table table-sm table-striped align-middle">
                             <thead class="table-light sticky-top"><tr><th>ID</th><th>姓名</th><th>身分</th><th>科系</th><th class="text-center">操作</th></tr></thead>
@@ -899,12 +903,12 @@
         const semester = document.getElementById('rptSemesterSelect').value;
         const filter = { mode: currentReportFilterMode, year: year, semester: semester };
         const tbody = document.getElementById('reportTableBodyBasic');
-        tbody.innerHTML = '<tr><td colspan="18" class="text-center py-5 text-muted">載入中...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16" class="text-center py-5 text-muted">載入中...</td></tr>';
         callApi({action:"getReportData", filter: filter}, res=>{
-            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="18" class="text-center py-5">無資料</td></tr>';return;}
+            if(!res.report || res.report.length===0){tbody.innerHTML='<tr><td colspan="16" class="text-center py-5">無資料</td></tr>';return;}
             const rows = res.report.map(r => {
                 const tm=r.teacherM+r.studentM+r.otherM,tf=r.teacherF+r.studentF+r.otherF,tt=tm+tf;const st=r.semester===1?"上":"下";
-                return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.outcome}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td><td class="fw-bold text-danger bg-warning-subtle">${r.spedCount}</td></tr>`;
+                return `<tr><td>${r.acadYear}</td><td>${st}</td><td class="col-text fw-bold">${r.name}</td><td>${r.category}</td><td>${r.date}</td><td>${r.endDate}</td><td class="col-text">${r.method}</td><td>${r.teacherM}</td><td>${r.teacherF}</td><td>${r.studentM}</td><td>${r.studentF}</td><td>${r.otherM}</td><td>${r.otherF}</td><td class="fw-bold bg-light">${tm}</td><td class="fw-bold bg-light">${tf}</td><td class="fw-bold bg-light text-primary">${tt}</td></tr>`;
             }).join('');
             tbody.innerHTML = rows;
         });
@@ -962,9 +966,8 @@
     function loadActivityList(f=false){const tb=document.getElementById('activityListBody');if(f || !cachedActivities || cachedActivities.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4 text-muted">載入中...</td></tr>';callApi({action:"getActivities"},res=>{ cachedActivities = res.activities || []; updateYearFilter(cachedActivities); filterActivities(); });}else{ filterActivities(); }}
     function filterActivities(){const tb=document.getElementById('activityListBody');const yv=document.getElementById('yearFilter').value;const cv=document.getElementById('actCategoryFilter').value;const sv=document.getElementById('activitySearchInput').value.toLowerCase().trim();let f=cachedActivities.filter(a=>{let ay=(currentYearMode==='calendar')?getCalendarYear(a.date):getAcademicYear(a.date).toString();return (yv==='all'||ay===yv)&&(cv==='all'||a.category===cv)&&((a.name||"").toLowerCase().includes(sv)||(a.category||"").toLowerCase().includes(sv));});f.sort((a,b)=>new Date(b.date)-new Date(a.date));tb.innerHTML="";if(f.length===0){tb.innerHTML='<tr><td colspan="5" class="text-center py-4">無活動</td></tr>';return;}f.forEach(a=>{const r=document.createElement('tr');let dy=(currentYearMode==='calendar')?`<span class="badge bg-light text-dark border">${getCalendarYear(a.date)}</span>`:`<span class="badge bg-info text-dark">${getAcademicDisplay(a.date)}</span>`;
     // [MODIFIED] Added 'list-ul' button for Manage Participants
-    r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
+    r.innerHTML=`<td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td><td class="text-nowrap">${a.date}</td><td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td><td class="text-center">${a.count || 0}</td><td class="text-end"><button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button><button class="btn btn-success btn-sm me-1" title="名單管理" onclick='openParticipantsModal(${safeJsonAttr(a)})'><i class="fas fa-list-ul"></i></button><button class="btn btn-outline-secondary btn-sm me-1" title="編輯" onclick='openEditModal(${safeJsonAttr(a)})'><i class="fas fa-pen"></i></button><button class="btn btn-outline-danger btn-sm" title="刪除" onclick='deleteActivity(${safeJsonAttr(a)})'><i class="fas fa-trash"></i></button></td>`;
     tb.appendChild(r);});}
-    function updateYearFilter(acts){const yf=document.getElementById('yearFilter');const cv=yf.value;const ys=new Set();if(acts){acts.forEach(a=>{if (currentYearMode==='calendar') {ys.add(getCalendarYear(a.date));} else {ys.add(getAcademicYear(a.date).toString());}}); }const sYs=Array.from(ys).sort().reverse();let ty='';const today=new Date();if(currentYearMode==='calendar') {ty=today.getFullYear().toString();} else {const m=today.getMonth()+1;const y=today.getFullYear();ty=((m>=8)?(y-1911):(y-1912)).toString();}yf.innerHTML='<option value="all">全部</option>';sYs.forEach(y=>{yf.innerHTML+=`<option value="${y}">${y}${currentYearMode==='calendar'?'年':'學年'}</option>`;});if(yf.dataset.userSelected!=='true'){if(sYs.includes(ty)) yf.value=ty;else if(sYs.length>0) yf.value=sYs[0];} else if(Array.from(yf.options).some(o=>o.value===cv)) {yf.value=cv;}}
 
     function addBatchRow() {const tbody = document.getElementById('batchTableBody');const tr = document.createElement('tr');tr.innerHTML = `<td><input type="text" class="form-control form-control-sm batch-start" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-end" placeholder="YYYYMMDD"></td><td><input type="text" class="form-control form-control-sm batch-cat" list="modalCategoryOptions"></td><td><input type="text" class="form-control form-control-sm batch-name"></td><td><input type="text" class="form-control form-control-sm batch-outcome"></td><td class="text-center"><button class="btn btn-link text-danger p-0" onclick="this.closest('tr').remove()"><i class="fas fa-times"></i></button></td>`;tbody.appendChild(tr);}
     function clearBatchTable() { document.getElementById('batchTableBody').innerHTML = ""; addBatchRow(); }
@@ -1163,6 +1166,18 @@
                     </td>
                  </tr>`;
              });
+             
+             // [NEW] Search Filter Logic
+             document.getElementById('partSearch').value = '';
+        });
+    }
+    
+    function filterPartList() {
+        const k = document.getElementById('partSearch').value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#participantsTableBody tr');
+        rows.forEach(r => {
+            const text = r.innerText.toLowerCase();
+            r.style.display = text.includes(k) ? '' : 'none';
         });
     }
     
