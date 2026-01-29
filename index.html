@@ -52,6 +52,10 @@
             line-height: 1.2;
         }
         .participation-table td.attended { color: #198754; font-weight: bold; font-size: 1.2rem; }
+        /* Inline Edit Select */
+        .inline-select { border: 1px solid transparent; background-color: transparent; padding: 2px; cursor: pointer; }
+        .inline-select:hover { border: 1px solid #ced4da; background-color: #fff; }
+        .inline-select:focus { border: 1px solid #86b7fe; background-color: #fff; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
     </style>
 </head>
 <body>
@@ -85,8 +89,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v56.0 (Final Polished Version)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-28 23:55</div>
+        <div>版本：v56.1 (Add Method Option)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-29 15:35</div>
     </div>
 </div>
 
@@ -293,7 +297,7 @@
             <!-- Tab 3: Sign In -->
             <div class="tab-pane fade" id="pills-activity">
                 <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div></div>
-                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
+                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3.執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
                 <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
                 
                 <!-- Duplicate & Unknown Warning -->
@@ -411,7 +415,7 @@
     let CACHED_USERS = []; let CACHED_USER_MAP = {}; let CONFIG_CATEGORIES = []; let CONFIG_DISABILITIES = []; 
     // [Updated] Corrected 12 categories in order, synced with backend
     let VALID_DISABILITIES = ["智能障礙", "視覺障礙", "聽覺障礙", "語言障礙", "肢體障礙", "腦性麻痺", "身體病弱", "情緒行為障礙", "學習障礙", "自閉症", "多重障礙", "其他障礙"]; 
-    const CONFIG_METHODS = ["活動", "講座", "工作坊", "個別輔導"];
+    const CONFIG_METHODS = ["活動", "講座", "工作坊", "個別輔導", "會議"]; // Updated
 
     const VALID_GENDERS = ["男", "女"];
     let VALID_ROLES = ["特教生", "家長", "校外人士", "教師", "職員", "工讀生"];
@@ -468,6 +472,56 @@
         return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
+    // [New] Generate options for inline select
+    function generateMethodOptions(currentValue) {
+        let options = '<option value="">(無)</option>';
+        CONFIG_METHODS.forEach(m => {
+            const selected = m === currentValue ? 'selected' : '';
+            options += `<option value="${m}" ${selected}>${m}</option>`;
+        });
+        return options;
+    }
+
+    // [New] Inline Update Function
+    function updateActivityInline(selectElem, act) {
+        const newValue = selectElem.value;
+        const originalMethod = act.method;
+        
+        // 1. Temporarily disable and visual feedback
+        selectElem.disabled = true;
+        selectElem.classList.add("bg-warning", "bg-opacity-10");
+
+        // 2. Prepare payload
+        const newData = { ...act, method: newValue }; // Clone and update
+        
+        // 3. Call API
+        callApi({
+            action: "updateActivity", 
+            originalName: act.name, 
+            originalDate: act.date, 
+            newData: newData
+        }, (res) => {
+            // 4. Handle response
+            selectElem.disabled = false;
+            selectElem.classList.remove("bg-warning", "bg-opacity-10");
+            
+            if (res.status === 'success') {
+                // Flash green to indicate success
+                selectElem.classList.add("bg-success", "bg-opacity-25");
+                setTimeout(() => selectElem.classList.remove("bg-success", "bg-opacity-25"), 1000);
+                
+                // Update local cache
+                const cachedItem = cachedActivities.find(a => a.name === act.name && a.date === act.date);
+                if (cachedItem) {
+                    cachedItem.method = newValue;
+                }
+            } else {
+                alert("更新失敗：" + res.message);
+                selectElem.value = originalMethod; // Revert on error
+            }
+        }, true); // Silent load (no full screen spinner)
+    }
+
     window.onload = function(){
         editModal=new bootstrap.Modal(document.getElementById('editActivityModal'));
         userEditModal=new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -518,7 +572,6 @@
                     
                     if(config.disabilities && config.disabilities.length > 0) {
                          CONFIG_DISABILITIES = config.disabilities;
-                         // Sync with global constant to be safe
                          VALID_DISABILITIES = config.disabilities;
                     }
                     populateDropdowns();
@@ -843,11 +896,16 @@
                 dateDisplay = `${a.date}<br><span class="small text-muted">~ ${a.endDate}</span>`;
             }
             
+            // Inline Method Select
+            let methodSelect = `<select class="form-select form-select-sm inline-select" onchange='updateActivityInline(this, ${safeJsonAttr(a)})' onclick="event.stopPropagation()">
+                                    ${generateMethodOptions(a.method)}
+                                </select>`;
+
             r.innerHTML = `
-                <td><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td>
+                <td class="text-center"><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td>
                 <td class="text-nowrap">${dateDisplay}</td>
                 <td class="fw-bold text-truncate" style="max-width:200px;">${a.name}</td>
-                <td class="text-center"><span class="badge bg-secondary">${a.method || '-'}</span></td>
+                <td class="text-center">${methodSelect}</td>
                 <td class="text-center">${a.count || 0}</td>
                 <td class="text-end">
                     <button class="btn btn-primary btn-sm me-1" title="匯入名單" onclick='selectActivity(${safeJsonAttr(a)})'><i class="fas fa-user-plus"></i></button>
@@ -857,6 +915,56 @@
                 </td>`;
             tb.appendChild(r);
         });
+    }
+
+    // [New] Generate options for inline select
+    function generateMethodOptions(currentValue) {
+        let options = '<option value="">(無)</option>';
+        CONFIG_METHODS.forEach(m => {
+            const selected = m === currentValue ? 'selected' : '';
+            options += `<option value="${m}" ${selected}>${m}</option>`;
+        });
+        return options;
+    }
+
+    // [New] Inline Update Function
+    function updateActivityInline(selectElem, act) {
+        const newValue = selectElem.value;
+        const originalMethod = act.method;
+        
+        // 1. Temporarily disable and visual feedback
+        selectElem.disabled = true;
+        selectElem.classList.add("bg-warning", "bg-opacity-10");
+
+        // 2. Prepare payload
+        const newData = { ...act, method: newValue }; // Clone and update
+        
+        // 3. Call API
+        callApi({
+            action: "updateActivity", 
+            originalName: act.name, 
+            originalDate: act.date, 
+            newData: newData
+        }, (res) => {
+            // 4. Handle response
+            selectElem.disabled = false;
+            selectElem.classList.remove("bg-warning", "bg-opacity-10");
+            
+            if (res.status === 'success') {
+                // Flash green to indicate success
+                selectElem.classList.add("bg-success", "bg-opacity-25");
+                setTimeout(() => selectElem.classList.remove("bg-success", "bg-opacity-25"), 1000);
+                
+                // Update local cache
+                const cachedItem = cachedActivities.find(a => a.name === act.name && a.date === act.date);
+                if (cachedItem) {
+                    cachedItem.method = newValue;
+                }
+            } else {
+                alert("更新失敗：" + res.message);
+                selectElem.value = originalMethod; // Revert on error
+            }
+        }, true); // Silent load (no full screen spinner)
     }
 
     // [Updated] Add Batch Row with Method Column
@@ -1293,19 +1401,20 @@
                 thead.innerHTML=""; 
                 return; 
             } 
-            // [Updated] Use VALID_DISABILITIES directly to ensure correct order
+            const disabilities = ["智能障礙", "視覺障礙", "聽覺障礙", "語言障礙", "肢體障礙", "腦性麻痺", "身體病弱", "情緒行為障礙", "學習障礙", "自閉症", "多重障礙", "其他障礙"];
+            // [Updated] Removed category column header
             let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">起</th><th rowspan="2">迄</th>`; 
-            VALID_DISABILITIES.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); 
+            disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); 
             hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`; 
             thead.innerHTML = hRow; 
             let colTotals = {}; 
-            VALID_DISABILITIES.forEach(d => colTotals[d] = 0); 
+            disabilities.forEach(d => colTotals[d] = 0); 
             let grandTotal = 0; 
             let bHtml = activities.map(act => { 
                 const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} }; 
                 let rowSum = 0; 
                 let cellsHtml = ""; 
-                VALID_DISABILITIES.forEach(d => { 
+                disabilities.forEach(d => { 
                     const count = stat.details[d] || 0; 
                     rowSum += count; 
                     colTotals[d] += count; 
@@ -1314,10 +1423,12 @@
                 }); 
                 grandTotal += rowSum; 
                 const semesterText = act.semester == 1 ? "上" : "下"; 
-                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
+                // [Updated] Removed category column cell
+                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
             }).join(''); 
+            // [Updated] Adjusted colspan from 6 to 5
             let footerHtml = `<tr class="grand-total-row"><td colspan="5" class="text-end pe-3">本頁總計</td>`; 
-            VALID_DISABILITIES.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); 
+            disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); 
             footerHtml += `<td>${grandTotal}</td></tr>`; 
             tbody.innerHTML = bHtml + footerHtml; 
         }); 
