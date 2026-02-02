@@ -50,7 +50,11 @@
             padding: 5px; 
             font-size: 0.9rem; 
             line-height: 1.2;
+            vertical-align: bottom;
         }
+        /* Sticky tweaks for 2-row header */
+        .participation-table thead tr:nth-child(2) th { top: 40px; } /* Offset for second row */
+        
         .participation-table td.attended { color: #198754; font-weight: bold; font-size: 1.2rem; }
         /* Inline Edit Select */
         .inline-select { border: 1px solid transparent; background-color: transparent; padding: 2px; cursor: pointer; }
@@ -89,8 +93,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v56.1 (Add Method Option)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-29 15:35</div>
+        <div>版本：v58.1 (Sticky Header Polish)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-30 09:45</div>
     </div>
 </div>
 
@@ -297,7 +301,7 @@
             <!-- Tab 3: Sign In -->
             <div class="tab-pane fade" id="pills-activity">
                 <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div></div>
-                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3.執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
+                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
                 <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
                 
                 <!-- Duplicate & Unknown Warning -->
@@ -376,7 +380,7 @@
                                             <th class="bg-warning-subtle">男</th><th class="bg-warning-subtle">女</th><th class="bg-warning-subtle">小計</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="20" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="21" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
                                 
                                 <!-- Table B: Disability (Category Removed) -->
@@ -415,7 +419,7 @@
     let CACHED_USERS = []; let CACHED_USER_MAP = {}; let CONFIG_CATEGORIES = []; let CONFIG_DISABILITIES = []; 
     // [Updated] Corrected 12 categories in order, synced with backend
     let VALID_DISABILITIES = ["智能障礙", "視覺障礙", "聽覺障礙", "語言障礙", "肢體障礙", "腦性麻痺", "身體病弱", "情緒行為障礙", "學習障礙", "自閉症", "多重障礙", "其他障礙"]; 
-    const CONFIG_METHODS = ["活動", "講座", "工作坊", "個別輔導", "會議"]; // Updated
+    const CONFIG_METHODS = ["活動", "講座", "工作坊", "個別輔導", "會議"]; 
 
     const VALID_GENDERS = ["男", "女"];
     let VALID_ROLES = ["特教生", "家長", "校外人士", "教師", "職員", "工讀生"];
@@ -1401,20 +1405,19 @@
                 thead.innerHTML=""; 
                 return; 
             } 
-            const disabilities = ["智能障礙", "視覺障礙", "聽覺障礙", "語言障礙", "肢體障礙", "腦性麻痺", "身體病弱", "情緒行為障礙", "學習障礙", "自閉症", "多重障礙", "其他障礙"];
-            // [Updated] Removed category column header
+            // [Updated] Use VALID_DISABILITIES directly to ensure correct order
             let hRow = `<tr><th rowspan="2">學年</th><th rowspan="2">學期</th><th rowspan="2">活動主題</th><th rowspan="2">起</th><th rowspan="2">迄</th>`; 
-            disabilities.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); 
+            VALID_DISABILITIES.forEach(d => { hRow += `<th class="vertical-header align-bottom"><div>${d}</div></th>`; }); 
             hRow += `<th rowspan="2" class="align-middle disability-total">總計</th></tr>`; 
             thead.innerHTML = hRow; 
             let colTotals = {}; 
-            disabilities.forEach(d => colTotals[d] = 0); 
+            VALID_DISABILITIES.forEach(d => colTotals[d] = 0); 
             let grandTotal = 0; 
             let bHtml = activities.map(act => { 
                 const stat = (res.stats && res.stats[act.key]) ? res.stats[act.key] : { total: 0, details: {} }; 
                 let rowSum = 0; 
                 let cellsHtml = ""; 
-                disabilities.forEach(d => { 
+                VALID_DISABILITIES.forEach(d => { 
                     const count = stat.details[d] || 0; 
                     rowSum += count; 
                     colTotals[d] += count; 
@@ -1423,18 +1426,16 @@
                 }); 
                 grandTotal += rowSum; 
                 const semesterText = act.semester == 1 ? "上" : "下"; 
-                // [Updated] Removed category column cell
-                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
+                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
             }).join(''); 
-            // [Updated] Adjusted colspan from 6 to 5
             let footerHtml = `<tr class="grand-total-row"><td colspan="5" class="text-end pe-3">本頁總計</td>`; 
-            disabilities.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); 
+            VALID_DISABILITIES.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); 
             footerHtml += `<td>${grandTotal}</td></tr>`; 
             tbody.innerHTML = bHtml + footerHtml; 
         }); 
     }
 
-    // [NEW] Student Participation Matrix Function
+    // [NEW] Student Participation Matrix Function with 2-Level Header
     function loadParticipationMatrix() {
         const year = document.getElementById('rptYearSelect').value;
         const semester = document.getElementById('rptSemesterSelect').value;
@@ -1448,9 +1449,8 @@
         thead.innerHTML = "";
 
         callApi({action: "getStudentMatrix", filter: filter}, res => {
-            // [Fix] Add safety check for response
             if (!res || !res.status || res.status === 'error') {
-                tbody.innerHTML = '<tr><td class="text-center py-5 text-danger">讀取失敗，請確認後端已更新至 v52.0+</td></tr>';
+                tbody.innerHTML = '<tr><td class="text-center py-5 text-danger">讀取失敗</td></tr>';
                 return;
             }
 
@@ -1458,13 +1458,24 @@
             let activities = res.activities || [];
             activities = activities.filter(a => a.category === '職涯');
             
+            // Sort: Method -> Date
+            const methodOrder = ["講座", "工作坊", "活動", "個別輔導", "會議"];
+            activities.sort((a, b) => {
+                const mA = a.method || "";
+                const mB = b.method || "";
+                let idxA = methodOrder.indexOf(mA); if (idxA === -1) idxA = 999;
+                let idxB = methodOrder.indexOf(mB); if (idxB === -1) idxB = 999;
+                
+                if (idxA !== idxB) return idxA - idxB;
+                return new Date(a.date) - new Date(b.date);
+            });
+            
             if (activities.length === 0) {
-                tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">本年度/學期無「職涯」類別活動資料</td></tr>';
+                tbody.innerHTML = '<tr><td class="text-center py-5 text-muted">無「職涯」類別活動資料</td></tr>';
                 return;
             }
 
             const students = res.students || {};
-            // [Fix] Add check for empty students
             const studentIds = Object.keys(students).sort((a,b) => students[a].id.localeCompare(students[b].id)); 
             
             if (studentIds.length === 0) {
@@ -1472,39 +1483,68 @@
                  return;
             }
 
-            // 1. Build Header
-            // [Updated] Removed Student ID column, Name width auto
-            let hRow = `<tr>
-                <th class="align-middle" style="left:0; z-index:5; background:#e9ecef; position:sticky; white-space:nowrap; width:1%;">姓名</th>
-                <th class="align-middle" style="white-space:nowrap; width:1%;">特教類別</th>`;
+            // --- Build 2-Level Header ---
             
-            activities.forEach(act => {
-                // Vertical header for activity names
-                hRow += `<th class="act-col align-bottom" title="${act.name}"><div style="writing-mode: vertical-rl; margin: 0 auto; letter-spacing: 2px;">${act.name}</div></th>`;
-            });
-            hRow += "</tr>";
-            thead.innerHTML = hRow;
+            // 1. Group activities by method
+            let groupedActs = []; // Array of { method: "講座", acts: [...] }
+            let lastMethod = null;
+            let currentGroup = null;
 
-            // 2. Build Body
+            activities.forEach(act => {
+                const m = act.method || "未分類";
+                if (m !== lastMethod) {
+                    currentGroup = { method: m, acts: [] };
+                    groupedActs.push(currentGroup);
+                    lastMethod = m;
+                }
+                currentGroup.acts.push(act);
+            });
+
+            // 2. Row 1: Fixed Cols + Method Headers
+            let hRow1 = `<tr>
+                <th rowspan="2" class="align-middle" style="left:0; z-index:6; background:#e9ecef; position:sticky; min-width:80px; width:auto; white-space:nowrap;">姓名</th>
+                <th rowspan="2" class="align-middle" style="white-space:nowrap; width:auto;">特教類別</th>`;
+            
+            groupedActs.forEach(group => {
+                hRow1 += `<th colspan="${group.acts.length}" class="text-center align-middle bg-light border-bottom">${group.method}</th>`;
+            });
+            hRow1 += `</tr>`;
+
+            // 3. Row 2: Activity Names (Vertical)
+            let hRow2 = `<tr>`;
+            // Note: Fixed cols covered by rowspan above
+            groupedActs.forEach(group => {
+                group.acts.forEach(act => {
+                    hRow2 += `<th class="act-col align-bottom" title="${act.name}"><div style="writing-mode: vertical-rl; margin: 0 auto; letter-spacing: 2px;">${act.name}</div></th>`;
+                });
+            });
+            hRow2 += `</tr>`;
+
+            thead.innerHTML = hRow1 + hRow2;
+
+            // 4. Build Body
             let bHtml = "";
             studentIds.forEach(sid => {
                 const stu = students[sid];
                 
                 let rowHtml = `<tr>
-                    <td class="fw-bold" style="left:0; z-index:3; background:#fff; position:sticky; white-space:nowrap;">${stu.name}</td>
+                    <td class="fw-bold" style="left:0; z-index:4; background:#fff; position:sticky; white-space:nowrap;">${stu.name}</td>
                     <td style="white-space:nowrap;">${stu.disability || '-'}</td>`;
                 
                 let count = 0;
-                activities.forEach(act => {
-                    const attended = stu.attendedActivityNames.includes(act.name); 
-                    
-                    if(attended) {
-                        rowHtml += `<td class="attended">●</td>`;
-                        count++;
-                    } else {
-                        rowHtml += `<td></td>`;
-                    }
+                // Iterate through the grouped structure to match header order
+                groupedActs.forEach(group => {
+                    group.acts.forEach(act => {
+                        const attended = stu.attendedActivityNames.includes(act.name); 
+                        if(attended) {
+                            rowHtml += `<td class="attended">●</td>`;
+                            count++;
+                        } else {
+                            rowHtml += `<td></td>`;
+                        }
+                    });
                 });
+
                 rowHtml += "</tr>";
                 if(count > 0 || true) { 
                      bHtml += rowHtml;
