@@ -53,7 +53,7 @@
             vertical-align: bottom;
         }
         /* Sticky tweaks for 2-row header */
-        .participation-table thead tr:nth-child(2) th { top: 40px; } /* Offset for second row */
+        .participation-table thead tr:nth-child(2) th { top: 41px; } /* Offset for second row */
         
         .participation-table td.attended { color: #198754; font-weight: bold; font-size: 1.2rem; }
         /* Inline Edit Select */
@@ -93,8 +93,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v58.1 (Sticky Header Polish)</div>
-        <div id="updateTimeDisplay">更新時間：2026-01-30 09:45</div>
+        <div>版本：v59.0 (Full System Repair)</div>
+        <div id="updateTimeDisplay">更新時間：2026-01-30 10:10</div>
     </div>
 </div>
 
@@ -301,7 +301,7 @@
             <!-- Tab 3: Sign In -->
             <div class="tab-pane fade" id="pills-activity">
                 <div class="alert alert-primary d-flex align-items-center mb-3"><i class="fas fa-lock me-3 fs-4"></i><div><strong>目前正在匯入名單的活動：</strong><span id="currentActName" class="fw-bold fs-5">請先至「活動管理」選擇活動</span> <span id="actLoadStatus" class="small text-warning fw-bold ms-2"></span></div></div>
-                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3. 執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
+                <div class="card"><div class="card-body"><div class="row g-3"><input type="hidden" id="activityName"><input type="hidden" id="activityCategory"><input type="hidden" id="activityDate"><div class="col-md-12"><div class="row text-muted small mb-2 align-items-center"><div class="col-md-4">日期：<span id="displayDate" class="fw-bold text-dark">-</span></div><div class="col-md-4">類別：<span id="displayCategory" class="badge bg-secondary">-</span></div><div class="col-md-4 text-end"><button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('attendanceInput').value='';"><i class="fas fa-eraser me-1"></i>清空</button></div></div><label class="form-label fw-bold">參與名單</label><textarea id="attendanceInput" class="form-control" rows="10" placeholder="請貼上參與人員名單 (純文字或學號)..."></textarea></div><div class="col-12 d-flex gap-2 justify-content-end border-top pt-3"><button onclick="parseAttendance()" class="btn btn-outline-primary fw-bold" id="btnParse"><i class="fas fa-search me-1"></i>2. 解析名單</button><button onclick="calculateStatsLocal()" class="btn btn-primary fw-bold" id="btnStats" style="display:none;"><i class="fas fa-chart-pie me-1"></i>3.執行統計</button></div><div class="col-12" id="localPreviewBox" style="display:none;"><div class="alert alert-info d-flex align-items-center mb-0"><i class="fas fa-check-circle me-2"></i><div>已偵測到 <strong><span id="localCount">0</span></strong> 筆資料：<span id="localPreviewText" class="small text-muted"></span></div></div></div></div></div></div>
                 <div id="activityResultArea" style="display:none;" class="mt-4"><div class="row g-3 mb-3"><div class="col-md-4"><div class="card bg-primary text-white h-100 text-center p-3"><h6>總人數 (本次新增)</h6><h1 id="actTotal" class="fw-bold display-4">0</h1></div></div><div class="col-md-8"><div class="card h-100 p-3 bg-light"><h6 class="fw-bold border-bottom pb-2">身分統計預覽 (不含重複)</h6><div id="previewRoleStats" class="d-flex flex-wrap gap-2"></div></div></div></div>
                 
                 <!-- Duplicate & Unknown Warning -->
@@ -1426,8 +1426,10 @@
                 }); 
                 grandTotal += rowSum; 
                 const semesterText = act.semester == 1 ? "上" : "下"; 
-                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td><span class="badge ${getCategoryClass(act.category)}">${act.category}</span></td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
+                // [Updated] Removed category column cell
+                return `<tr><td>${act.acadYear || "-"}</td><td>${semesterText}</td><td class="text-start fw-bold text-wrap" style="max-width:200px;">${act.name}</td><td class="text-nowrap small">${act.date}</td><td class="text-nowrap small">${act.endDate}</td>${cellsHtml}<td class="disability-total">${rowSum}</td></tr>`; 
             }).join(''); 
+            // [Updated] Adjusted colspan from 6 to 5
             let footerHtml = `<tr class="grand-total-row"><td colspan="5" class="text-end pe-3">本頁總計</td>`; 
             VALID_DISABILITIES.forEach(d => { footerHtml += `<td>${colTotals[d]}</td>`; }); 
             footerHtml += `<td>${grandTotal}</td></tr>`; 
@@ -1435,7 +1437,7 @@
         }); 
     }
 
-    // [NEW] Student Participation Matrix Function with 2-Level Header
+    // [NEW] Student Participation Matrix Function
     function loadParticipationMatrix() {
         const year = document.getElementById('rptYearSelect').value;
         const semester = document.getElementById('rptSemesterSelect').value;
@@ -1449,8 +1451,9 @@
         thead.innerHTML = "";
 
         callApi({action: "getStudentMatrix", filter: filter}, res => {
+            // [Fix] Add safety check for response
             if (!res || !res.status || res.status === 'error') {
-                tbody.innerHTML = '<tr><td class="text-center py-5 text-danger">讀取失敗</td></tr>';
+                tbody.innerHTML = '<tr><td class="text-center py-5 text-danger">讀取失敗，請確認後端已更新至 v52.0+</td></tr>';
                 return;
             }
 
