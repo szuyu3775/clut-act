@@ -42,24 +42,27 @@
         .participation-table th.act-col { 
             writing-mode: vertical-rl; 
             text-orientation: mixed; 
-            height: 180px; 
-            max-width: 50px; 
+            height: auto;
+            min-height: 200px;
+            max-width: none;
             white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            padding: 5px; 
+            overflow: visible;
+            text-overflow: clip;
+            padding: 10px 5px; 
             font-size: 0.9rem; 
             line-height: 1.2;
             vertical-align: bottom;
         }
         /* Sticky tweaks for 2-row header */
-        .participation-table thead tr:nth-child(2) th { top: 41px; } /* Offset for second row */
+        .participation-table thead tr:nth-child(2) th { top: 41px; } 
         
         .participation-table td.attended { color: #198754; font-weight: bold; font-size: 1.2rem; }
         /* Inline Edit Select */
         .inline-select { border: 1px solid transparent; background-color: transparent; padding: 2px; cursor: pointer; }
         .inline-select:hover { border: 1px solid #ced4da; background-color: #fff; }
         .inline-select:focus { border: 1px solid #86b7fe; background-color: #fff; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+        /* Merge Highlight */
+        .merged-activity { background-color: #fff3cd !important; }
     </style>
 </head>
 <body>
@@ -93,8 +96,8 @@
         <div class="d-grid gap-2"><button type="submit" id="btnLogin" class="btn btn-primary btn-lg fw-bold shadow-sm">登入系統</button></div>
     </form>
     <div class="text-center mt-4 pt-3 border-top text-muted small">
-        <div>版本：v60.1 (History List View)</div>
-        <div id="updateTimeDisplay">更新時間：2026-02-04 16:22</div>
+        <div>版本：v60.2 (Full Headers & Merge Highlight)</div>
+        <div id="updateTimeDisplay">更新時間：2026-02-09 10:45</div>
     </div>
 </div>
 
@@ -254,6 +257,7 @@
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                                 <div class="d-flex align-items-center gap-2"><button class="btn btn-sm btn-outline-light me-2" onclick="backToReportMenu()"><i class="fas fa-arrow-left"></i> 返回</button><h6 class="m-0 fw-bold text-nowrap"><i class="fas fa-table me-2"></i><span id="reportTitle">成果報表</span></h6></div>
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <!-- Merge Checkbox (Only for Disability) -->
                                     <div class="form-check form-switch me-3" id="mergeControl" style="display:none;"><input class="form-check-input" type="checkbox" id="mergeByNameCheck" onchange="loadDisabilityReport()"><label class="form-check-label text-white fw-bold small" for="mergeByNameCheck">🔀 合併同名活動</label></div>
                                     <select id="rptCategoryFilter" class="form-select form-select-sm text-primary fw-bold" style="display:none; width:auto;" onchange="loadDisabilityReport()"><option value="all">所有類別</option></select>
                                     <div class="btn-group btn-group-sm" role="group"><input type="radio" class="btn-check" name="rptYearMode" id="rptModeCalendar" autocomplete="off" checked onchange="changeReportFilterMode('calendar')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeCalendar">📅 日曆年</label><input type="radio" class="btn-check" name="rptYearMode" id="rptModeAcademic" autocomplete="off" onchange="changeReportFilterMode('academic')"><label class="btn btn-outline-light text-dark bg-white bg-opacity-25 border-0" for="rptModeAcademic">🎓 學年</label></div>
@@ -266,14 +270,18 @@
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive" style="max-height: 600px;">
+                                <!-- Table A: Basic (Full Columns with Sped Gender) -->
                                 <table class="table table-bordered table-hover report-table mb-0" id="reportTableBasic" style="display:none;">
                                     <thead class="sticky-top">
                                         <tr class="report-header-group"><th>學年</th><th>學期</th><th>活動主題</th><th>類別</th><th>起</th><th>迄</th><th>活動方式</th><th>具體成效</th><th colspan="2">專任教師</th><th colspan="2">學生</th><th colspan="2">其他</th><th colspan="3">總計</th><th colspan="3" class="bg-warning-subtle">特教生人次</th></tr>
                                         <tr class="report-header-group"><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>男</th><th>女</th><th>小計</th><th class="bg-warning-subtle">男</th><th class="bg-warning-subtle">女</th><th class="bg-warning-subtle">小計</th></tr>
                                     </thead>
-                                    <tbody id="reportTableBodyBasic"><tr><td colspan="20" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
+                                    <tbody id="reportTableBodyBasic"><tr><td colspan="21" class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody>
                                 </table>
+                                
+                                <!-- Table B: Disability (Category Removed) -->
                                 <table class="table table-bordered table-hover disability-table mb-0 small" id="reportTableDisability" style="display:none;"><thead id="disabilityHead" class="sticky-top"></thead><tbody id="disabilityBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody></table>
+                                <!-- Table C: Participation Matrix -->
                                 <table class="table table-bordered table-hover participation-table mb-0 small" id="reportTableParticipation" style="display:none;"><thead id="participationHead" class="sticky-top"></thead><tbody id="participationBody"><tr><td class="text-center py-5 text-muted">請選擇條件並點擊載入</td></tr></tbody></table>
                             </div>
                         </div>
@@ -387,7 +395,6 @@
         return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // [New] Generate options for inline select
     function generateMethodOptions(currentValue) {
         let options = '<option value="">(無)</option>';
         CONFIG_METHODS.forEach(m => {
@@ -397,44 +404,37 @@
         return options;
     }
 
-    // [New] Inline Update Function
     function updateActivityInline(selectElem, act) {
         const newValue = selectElem.value;
         const originalMethod = act.method;
         
-        // 1. Temporarily disable and visual feedback
         selectElem.disabled = true;
         selectElem.classList.add("bg-warning", "bg-opacity-10");
 
-        // 2. Prepare payload
-        const newData = { ...act, method: newValue }; // Clone and update
+        const newData = { ...act, method: newValue };
         
-        // 3. Call API
         callApi({
             action: "updateActivity", 
             originalName: act.name, 
             originalDate: act.date, 
             newData: newData
         }, (res) => {
-            // 4. Handle response
             selectElem.disabled = false;
             selectElem.classList.remove("bg-warning", "bg-opacity-10");
             
             if (res.status === 'success') {
-                // Flash green to indicate success
                 selectElem.classList.add("bg-success", "bg-opacity-25");
                 setTimeout(() => selectElem.classList.remove("bg-success", "bg-opacity-25"), 1000);
                 
-                // Update local cache
                 const cachedItem = cachedActivities.find(a => a.name === act.name && a.date === act.date);
                 if (cachedItem) {
                     cachedItem.method = newValue;
                 }
             } else {
                 alert("更新失敗：" + res.message);
-                selectElem.value = originalMethod; // Revert on error
+                selectElem.value = originalMethod;
             }
-        }, true); // Silent load (no full screen spinner)
+        }, true);
     }
 
     window.onload = function(){
@@ -481,7 +481,6 @@
                     CACHED_USER_MAP = {};
                     CACHED_USERS.forEach(u => { if(u.id) CACHED_USER_MAP[u.id] = u; if(u.name) CACHED_USER_MAP[u.name] = u; });
                     const config = res.config || {};
-                    // [Updated] Default Categories
                     if(config.categories && config.categories.length > 0) CONFIG_CATEGORIES = config.categories;
                     else CONFIG_CATEGORIES = ["課業","支持","人際","職涯"];
                     
@@ -493,7 +492,6 @@
                     preloadActivities();
                     setupRoleFilters();
                     filterUserList(); 
-                    // Update History Year Filter
                     updateHistoryYearSelect();
                     showMainApp();
                 } catch(e) {
@@ -511,7 +509,7 @@
             if(res.status === 'success') {
                 cachedActivities = res.activities || [];
                 updateYearFilter(cachedActivities);
-                updateHistoryYearSelect(); // Also update history filter
+                updateHistoryYearSelect();
             }
         }, true);
     }
@@ -808,18 +806,13 @@
         
         f.forEach(a => {
             const r = document.createElement('tr');
-            
-            // Date Logic: Single or Stacked
             let dateDisplay = a.date;
             if (a.endDate && a.date !== a.endDate) {
                 dateDisplay = `${a.date}<br><span class="small text-muted">~ ${a.endDate}</span>`;
             }
-            
-            // Inline Method Select
             let methodSelect = `<select class="form-select form-select-sm inline-select" onchange='updateActivityInline(this, ${safeJsonAttr(a)})' onclick="event.stopPropagation()">
                                     ${generateMethodOptions(a.method)}
                                 </select>`;
-
             r.innerHTML = `
                 <td class="text-center"><span class="badge ${getCategoryClass(a.category)}">${a.category}</span></td>
                 <td class="text-nowrap">${dateDisplay}</td>
@@ -850,40 +843,27 @@
     function updateActivityInline(selectElem, act) {
         const newValue = selectElem.value;
         const originalMethod = act.method;
-        
-        // 1. Temporarily disable and visual feedback
         selectElem.disabled = true;
         selectElem.classList.add("bg-warning", "bg-opacity-10");
-
-        // 2. Prepare payload
-        const newData = { ...act, method: newValue }; // Clone and update
-        
-        // 3. Call API
+        const newData = { ...act, method: newValue };
         callApi({
             action: "updateActivity", 
             originalName: act.name, 
             originalDate: act.date, 
             newData: newData
         }, (res) => {
-            // 4. Handle response
             selectElem.disabled = false;
             selectElem.classList.remove("bg-warning", "bg-opacity-10");
-            
             if (res.status === 'success') {
-                // Flash green to indicate success
                 selectElem.classList.add("bg-success", "bg-opacity-25");
                 setTimeout(() => selectElem.classList.remove("bg-success", "bg-opacity-25"), 1000);
-                
-                // Update local cache
                 const cachedItem = cachedActivities.find(a => a.name === act.name && a.date === act.date);
-                if (cachedItem) {
-                    cachedItem.method = newValue;
-                }
+                if (cachedItem) { cachedItem.method = newValue; }
             } else {
                 alert("更新失敗：" + res.message);
-                selectElem.value = originalMethod; // Revert on error
+                selectElem.value = originalMethod;
             }
-        }, true); // Silent load (no full screen spinner)
+        }, true);
     }
 
     // [Updated] Add Batch Row with Method Column
@@ -1271,7 +1251,7 @@
         }); 
     }
 
-    // [NEW] Student Participation Matrix Function
+    // [NEW] Student Participation Matrix Function with 2-Level Header
     function loadParticipationMatrix() {
         const year = document.getElementById('rptYearSelect').value;
         const semester = document.getElementById('rptSemesterSelect').value;
